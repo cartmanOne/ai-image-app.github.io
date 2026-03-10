@@ -52,10 +52,7 @@
         .btn-success { background: var(--success); }
 
         /* Layout Structure */
-        .main-grid {
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
+        .main-grid { display: flex; flex-direction: column; gap: 20px; }
         .section { border: 1px solid var(--border); border-radius: 12px; padding: 15px; background: rgba(28,28,30,0.5); }
         .section-title { font-size: 14px; font-weight: 600; color: #ccc; margin-bottom: 10px; }
 
@@ -392,11 +389,15 @@
         const enhancerModel = document.getElementById('enhancerModelSelect').value;
         if(!enhancerModel) { alert("Select Text/Enhancer Model in Settings."); return; }
 
-        const basePrompt = document.getElementById('basePromptArea').value;
-        if(!basePrompt) { alert("Please Analyze the image first."); return; }
+        // CHANGE: Use Final Prompt as input if it exists, otherwise use base prompt
+        const finalArea = document.getElementById('finalPromptArea');
+        const baseArea = document.getElementById('basePromptArea');
+        
+        let inputPrompt = finalArea.value || baseArea.value;
+        
+        if(!inputPrompt) { alert("Please Analyze the image first."); return; }
 
         const status = document.getElementById('statusText');
-        const finalArea = document.getElementById('finalPromptArea');
         status.innerText = "Enhancing prompt...";
 
         // Define specific system prompts
@@ -412,7 +413,7 @@
                 model: enhancerModel,
                 messages: [
                     { role: 'system', content: systemInstruction },
-                    { role: 'user', content: basePrompt }
+                    { role: 'user', content: inputPrompt }
                 ]
             };
 
@@ -424,6 +425,7 @@
             const data = await resp.json();
             if (!resp.ok) throw new Error(data.error?.message);
 
+            // CHANGE: Update the final prompt, allowing iterative enhancement
             finalArea.value = data.choices[0].message.content;
             status.innerText = "Prompt enhanced.";
 
@@ -465,7 +467,6 @@
                 body: JSON.stringify(payload)
             });
             
-            // Check for non-200 responses
             if (!resp.ok) {
                 const errData = await resp.json();
                 throw new Error(errData.error?.message || "Unknown API Error");
@@ -473,22 +474,18 @@
 
             const data = await resp.json();
 
-            // Robust checking of response structure
             if (data && data.data && data.data.length > 0) {
                 const imgData = data.data[0];
                 
-                // Case 1: We got Base64 JSON
                 if (imgData.b64_json) {
                     const imgSrc = "data:image/png;base64," + imgData.b64_json;
                     addToGallery(imgSrc);
                     status.innerText = "Done!";
                 } 
-                // Case 2: We got a URL
                 else if (imgData.url) {
                     addToGallery(imgData.url);
                     status.innerText = "Done!";
                 } 
-                // Case 3: Unexpected format
                 else {
                     console.error("Unexpected image response format", data);
                     throw new Error("API returned image data but format was unrecognized.");
@@ -505,23 +502,44 @@
         }
     }
 
+    // Helper to format date for filename
+    function getTimestampFilename() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const h = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        return `AI_Gen_${y}-${m}-${d}_${h}-${min}.png`;
+    }
+
     function addToGallery(src) {
         const galleryWrapper = document.getElementById('galleryWrapper');
         const gallery = document.getElementById('gallery');
         
-        // Show gallery if hidden
         galleryWrapper.style.display = 'block';
 
         const img = document.createElement('img');
         img.src = src;
         img.className = 'gallery-item';
+        
         img.onclick = () => {
-            // Open in new tab/window
+            // Open image in new window with timestamped filename
             const win = window.open();
-            win.document.write(`<img src="${src}" style="max-width:100%;">`);
+            const filename = getTimestampFilename();
+            
+            // Create a download link to force filename (works better on desktop)
+            // For mobile, the title is the best we can do easily.
+            win.document.write(`
+                <html>
+                <head><title>${filename}</title></head>
+                <body style="margin:0; background:#111; display:flex; justify-content:center; align-items:center; min-height:100vh;">
+                    <img src="${src}" style="max-width:100%; max-height:100%;">
+                </body>
+                </html>
+            `);
         };
         
-        // Prepend to top of gallery
         gallery.prepend(img);
     }
 
