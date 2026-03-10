@@ -9,7 +9,7 @@
     <style>
         :root {
             --bg-color: #000000; --card-bg: #1c1c1e; --text-color: #ffffff;
-            --accent: #0a84ff; --border: #2c2c2e; --danger: #ff453a;
+            --accent: #0a84ff; --border: #2c2c2e; --success: #30d158;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -40,7 +40,7 @@
             font-family: inherit; font-size: 14px; -webkit-appearance: none;
         }
         select { background-image: url("data:image/svg+xml;utf8,<svg fill='white' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; background-size: 20px; }
-        textarea { height: 80px; resize: none; }
+        textarea { height: 100px; resize: none; }
         .hint { font-size: 11px; color: #888; margin-top: 2px; }
         .checkbox-group { display: flex; align-items: center; gap: 10px; font-size: 13px; }
         .btn {
@@ -49,8 +49,12 @@
         }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-secondary { background: var(--card-bg); border: 1px solid var(--border); }
+        .btn-success { background: var(--success); }
 
-        /* Workspace */
+        /* Workspace Sections */
+        .section { border: 1px solid var(--border); border-radius: 12px; padding: 15px; background: rgba(28,28,30,0.5); }
+        .section-title { font-size: 14px; font-weight: 600; color: #ccc; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        
         .upload-box {
             border: 2px dashed var(--border); border-radius: 12px; padding: 30px;
             text-align: center; cursor: pointer; transition: background 0.3s;
@@ -58,7 +62,6 @@
         .upload-box:active { background: #333; }
         input[type="file"] { display: none; }
         
-        .workspace { display: none; flex-direction: column; gap: 15px; }
         .image-preview { width: 100%; border-radius: 12px; background: #000; }
         .status { text-align: center; font-size: 14px; color: #888; min-height: 20px; }
         
@@ -68,6 +71,14 @@
         .gallery-item {
             width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer;
         }
+
+        /* Enhance Buttons Grid */
+        .enhance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .enhance-btn {
+            background: #2c2c2e; border: 1px solid var(--border); color: white; padding: 10px;
+            border-radius: 8px; font-size: 13px; cursor: pointer; text-align: center;
+        }
+        .enhance-btn:active { background: #3c3c3e; }
     </style>
 </head>
 <body>
@@ -83,16 +94,38 @@
     </div>
 
     <!-- Workspace -->
-    <div class="workspace" id="workspace">
-        <img id="originalPreview" class="image-preview" src="" alt="Original">
+    <div class="workspace" id="workspace" style="display: none;">
         
+        <!-- Preview & Status -->
+        <img id="originalPreview" class="image-preview" src="" alt="Original">
         <div class="status" id="statusText">Ready</div>
 
-        <label style="font-size: 12px; color: #888;">Generated Prompt:</label>
-        <textarea id="promptArea" placeholder="Analyzing..."></textarea>
+        <!-- STEP 1: ANALYZE -->
+        <div class="section">
+            <div class="section-title>Step 1: Analyze</div>
+            <button class="btn" onclick="runAnalyze()" id="analyzeBtn">Analyze Image</button>
+            <textarea id="basePromptArea" placeholder="Raw description will appear here..." style="margin-top:10px; height:60px;"></textarea>
+        </div>
 
-        <button class="btn" onclick="runFullFlow()" id="actionBtn">Analyze & Generate</button>
-        
+        <!-- STEP 2: ENHANCE -->
+        <div class="section">
+            <div class="section-title">Step 2: Enhance Prompt</div>
+            
+            <div class="enhance-grid">
+                <button class="enhance-btn" onclick="runEnhance('nudify')">👙 Nudify</button>
+                <button class="enhance-btn" onclick="runEnhance('fullshot')">📷 Full Shot</button>
+            </div>
+            
+            <textarea id="finalPromptArea" placeholder="Final prompt (editable)..." style="height:100px;"></textarea>
+            <div class="hint" style="text-align:center; margin-top:5px;">Select an enhancement or type manually.</div>
+        </div>
+
+        <!-- STEP 3: GENERATE -->
+        <div class="section">
+            <div class="section-title">Step 3: Generate</div>
+            <button class="btn btn-success" onclick="runGenerate()" id="generateBtn">Generate Image</button>
+        </div>
+
         <button class="btn btn-secondary" onclick="resetApp()">Start Over</button>
     </div>
 
@@ -105,42 +138,32 @@
     <div class="modal-content">
         <h3 style="margin:0 0 10px 0;">Configuration</h3>
         
-        <!-- API Key -->
         <div>
             <label style="font-size:12px; color:#888;">NanoGPT API Key</label>
             <input type="password" id="apiKeyInput" placeholder="sk-...">
-            <div class="hint">Stored locally in browser.</div>
         </div>
-
         <hr style="border-color:var(--border); margin:5px 0;">
 
         <!-- Vision Model -->
         <div>
             <label style="font-size:14px; font-weight:600;">1. Vision Model (Analyze)</label>
-            <select id="visionModelSelect" onchange="saveSelectedModels()">
-                <option value="">Loading...</option>
-            </select>
-            <div class="hint">Models with 'vision' capability.</div>
+            <select id="visionModelSelect" onchange="saveSelectedModels()"><option value="">Loading...</option></select>
         </div>
 
-        <!-- Prompt Enhancer Model -->
+        <!-- Enhancer Model -->
         <div>
-            <label style="font-size:14px; font-weight:600;">2. Prompt Enhancer (Optional)</label>
-            <select id="enhancerModelSelect" onchange="saveSelectedModels()">
-                <option value="">-- Disabled --</option>
-            </select>
+            <label style="font-size:14px; font-weight:600;">2. Text Model (Enhance)</label>
+            <select id="enhancerModelSelect" onchange="saveSelectedModels()"><option value="">Loading...</option></select>
             <div class="checkbox-group">
                 <input type="checkbox" id="enhancerUncensored" onchange="fetchModels()">
-                <label for="enhancerUncensored">Show Uncensored Models Only</label>
+                <label for="enhancerUncensored">Uncensored Models Only</label>
             </div>
         </div>
 
-        <!-- Image Generation Model -->
+        <!-- Image Model -->
         <div>
             <label style="font-size:14px; font-weight:600;">3. Image Model (Generate)</label>
-            <select id="imageModelSelect" onchange="updateResolutions()">
-                <option value="">Loading...</option>
-            </select>
+            <select id="imageModelSelect" onchange="updateResolutions()"><option value="">Loading...</option></select>
             <div class="checkbox-group">
                 <input type="checkbox" id="imageNsfw" checked onchange="fetchModels()">
                 <label for="imageNsfw">NSFW Enabled Only</label>
@@ -150,9 +173,7 @@
         <!-- Resolution -->
         <div>
             <label style="font-size:12px; color:#888;">Output Resolution</label>
-            <select id="resolutionSelect">
-                <option value="">Select Model First</option>
-            </select>
+            <select id="resolutionSelect"><option value="">Select Model</option></select>
         </div>
 
         <hr style="border-color:var(--border); margin:10px 0;">
@@ -161,10 +182,6 @@
         <div>
             <label style="font-size:12px; color:#888;">Vision System Prompt</label>
             <textarea id="visionSystemPrompt">Describe this image in detail for image generation.</textarea>
-        </div>
-        <div>
-            <label style="font-size:12px; color:#888;">Enhancer System Prompt</label>
-            <textarea id="enhancerSystemPrompt">Rewrite the following prompt to be more detailed and artistic.</textarea>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:10px;">
@@ -183,9 +200,7 @@
 
     // --- INIT ---
     document.addEventListener('DOMContentLoaded', () => {
-        // Load saved keys/prompts
         if(localStorage.getItem('vision_system')) document.getElementById('visionSystemPrompt').value = localStorage.getItem('vision_system');
-        if(localStorage.getItem('enhancer_system')) document.getElementById('enhancerSystemPrompt').value = localStorage.getItem('enhancer_system');
         document.getElementById('apiKeyInput').value = API_KEY;
 
         if (!API_KEY) {
@@ -201,18 +216,13 @@
         document.getElementById('settingsModal').classList.add('active');
         if(API_KEY) fetchModels();
     }
-
     function saveAndCloseSettings() {
         API_KEY = document.getElementById('apiKeyInput').value;
         localStorage.setItem('nanogpt_key', API_KEY);
         localStorage.setItem('vision_system', document.getElementById('visionSystemPrompt').value);
-        localStorage.setItem('enhancer_system', document.getElementById('enhancerSystemPrompt').value);
-        saveSelectedModels(); 
-        
+        saveSelectedModels();
         document.getElementById('settingsModal').classList.remove('active');
-        alert("Settings Saved");
     }
-
     function saveSelectedModels() {
         localStorage.setItem('sel_vision', document.getElementById('visionModelSelect').value);
         localStorage.setItem('sel_enhancer', document.getElementById('enhancerModelSelect').value);
@@ -227,28 +237,25 @@
         const uncensoredChecked = document.getElementById('enhancerUncensored').checked;
         const nsfwChecked = document.getElementById('imageNsfw').checked;
 
-        // Temporary loading state
         visionSelect.innerHTML = '<option value="">Loading...</option>';
-        enhancerSelect.innerHTML = '<option value="">-- Disabled --</option>';
+        enhancerSelect.innerHTML = '<option value="">Loading...</option>';
         imageSelect.innerHTML = '<option value="">Loading...</option>';
 
         try {
-            // 1. Fetch Text/Vision Models
-            const textResp = await fetch(`${BASE_URL}/v1/models?detailed=true`, {
-                headers: { 'Authorization': `Bearer ${API_KEY}` }
-            });
+            // 1. Text/Vision Models
+            const textResp = await fetch(`${BASE_URL}/v1/models?detailed=true`, { headers: { 'Authorization': `Bearer ${API_KEY}` }});
             const textData = await textResp.json();
             allTextModels = textData.data || [];
 
-            // Populate Vision
+            // Vision Dropdown
             let visionHTML = '';
             allTextModels.filter(m => m.capabilities?.vision).forEach(m => {
                 visionHTML += `<option value="${m.id}">${m.name || m.id}</option>`;
             });
             visionSelect.innerHTML = visionHTML;
 
-            // Populate Enhancer
-            let enhancerHTML = '<option value="">-- Disabled --</option>';
+            // Enhancer Dropdown
+            let enhancerHTML = '';
             allTextModels.filter(m => {
                 const isText = !m.capabilities?.image_generation;
                 if(!isText) return false;
@@ -259,10 +266,8 @@
             });
             enhancerSelect.innerHTML = enhancerHTML;
 
-            // 2. Fetch Image Models
-            const imgResp = await fetch(`${BASE_URL}/v1/image-models?detailed=true`, {
-                headers: { 'Authorization': `Bearer ${API_KEY}` }
-            });
+            // 2. Image Models
+            const imgResp = await fetch(`${BASE_URL}/v1/image-models?detailed=true`, { headers: { 'Authorization': `Bearer ${API_KEY}` }});
             const imgData = await imgResp.json();
             allImageModels = imgData.data || [];
 
@@ -286,6 +291,7 @@
         } catch (err) {
             console.error(err);
             visionSelect.innerHTML = '<option value="">Error</option>';
+            enhancerSelect.innerHTML = '<option value="">Error</option>';
             imageSelect.innerHTML = '<option value="">Error</option>';
         }
     }
@@ -294,16 +300,11 @@
         const modelId = document.getElementById('imageModelSelect').value;
         const resSelect = document.getElementById('resolutionSelect');
         saveSelectedModels();
-
         if (!modelId) { resSelect.innerHTML = '<option value="">Select Model</option>'; return; }
 
         const model = allImageModels.find(m => m.id === modelId);
-        
         if (model && model.supported_parameters?.resolutions) {
-            const resList = model.supported_parameters.resolutions;
-            resSelect.innerHTML = resList.map(r => `<option value="${r}">${r}</option>`).join('');
-            const savedRes = localStorage.getItem('sel_resolution');
-            if (savedRes && resList.includes(savedRes)) resSelect.value = savedRes;
+            resSelect.innerHTML = model.supported_parameters.resolutions.map(r => `<option value="${r}">${r}</option>`).join('');
         } else {
             resSelect.innerHTML = '<option value="1024x1024">1024x1024 (Default)</option>';
         }
@@ -319,124 +320,153 @@
             document.querySelector('.upload-box').style.display = 'none';
             document.getElementById('originalPreview').src = e.target.result;
             currentImageDataUrl = e.target.result; 
+            // Reset fields
+            document.getElementById('basePromptArea').value = "";
+            document.getElementById('finalPromptArea').value = "";
+            document.getElementById('statusText').innerText = "Ready";
         };
         reader.readAsDataURL(file);
     }
 
-    // --- WORKFLOW ---
-    async function runFullFlow() {
+    // --- STEP 1: ANALYZE ---
+    async function runAnalyze() {
         if(!API_KEY) { alert("Enter API Key"); return; }
-
-        const btn = document.getElementById('actionBtn');
-        const status = document.getElementById('statusText');
-        const promptArea = document.getElementById('promptArea');
-        
         const visionModel = document.getElementById('visionModelSelect').value;
-        const enhancerModel = document.getElementById('enhancerModelSelect').value;
-        const imageModel = document.getElementById('imageModelSelect').value;
-        const resolution = document.getElementById('resolutionSelect').value || '1024x1024';
+        if(!visionModel) { alert("Select Vision Model in Settings."); return; }
 
-        const visionSys = document.getElementById('visionSystemPrompt').value;
-        const enhancerSys = document.getElementById('enhancerSystemPrompt').value;
-
-        if(!visionModel || !imageModel) { alert("Select Vision & Image models."); return; }
+        const btn = document.getElementById('analyzeBtn');
+        const status = document.getElementById('statusText');
+        const baseArea = document.getElementById('basePromptArea');
+        const sysPrompt = document.getElementById('visionSystemPrompt').value;
 
         btn.disabled = true;
-        let currentPrompt = "";
+        status.innerText = "Analyzing...";
 
         try {
-            // --- STEP 1: VISION ---
-            status.innerText = "Step 1/3: Analyzing Image...";
-            promptArea.value = "Analyzing...";
-
-            const visionPayload = {
+            const payload = {
                 model: visionModel,
                 messages: [
-                    { role: 'system', content: visionSys },
+                    { role: 'system', content: sysPrompt },
                     { role: 'user', content: [
-                        { type: 'text', text: "Process this image." },
+                        { type: 'text', text: "Describe this image in detail." },
                         { type: 'image_url', image_url: { url: currentImageDataUrl } }
                     ]}
                 ]
             };
 
-            const visionResp = await fetch(`${BASE_URL}/v1/chat/completions`, {
+            const resp = await fetch(`${BASE_URL}/v1/chat/completions`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-                body: JSON.stringify(visionPayload)
+                body: JSON.stringify(payload)
             });
-            const visionData = await visionResp.json();
-            if (!visionResp.ok) throw new Error(visionData.error?.message);
-            
-            currentPrompt = visionData.choices[0].message.content;
-            promptArea.value = currentPrompt;
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error?.message);
 
-            // --- STEP 2: ENHANCER ---
-            if (enhancerModel) {
-                status.innerText = "Step 2/3: Enhancing Prompt...";
-                
-                const enhancePayload = {
-                    model: enhancerModel,
-                    messages: [
-                        { role: 'system', content: enhancerSys },
-                        { role: 'user', content: currentPrompt }
-                    ]
-                };
+            const result = data.choices[0].message.content;
+            baseArea.value = result;
+            // Copy to final prompt as starting point
+            document.getElementById('finalPromptArea').value = result;
+            status.innerText = "Analysis complete.";
 
-                const enhanceResp = await fetch(`${BASE_URL}/v1/chat/completions`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-                    body: JSON.stringify(enhancePayload)
-                });
-                const enhanceData = await enhanceResp.json();
-                if (!enhanceResp.ok) throw new Error(enhanceData.error?.message);
+        } catch (err) {
+            console.error(err);
+            status.innerText = "Error: " + err.message;
+        } finally {
+            btn.disabled = false;
+        }
+    }
 
-                currentPrompt = enhanceData.choices[0].message.content;
-                promptArea.value = currentPrompt; 
-            }
+    // --- STEP 2: ENHANCE ---
+    async function runEnhance(mode) {
+        if(!API_KEY) { alert("Enter API Key"); return; }
+        const enhancerModel = document.getElementById('enhancerModelSelect').value;
+        if(!enhancerModel) { alert("Select Text/Enhancer Model in Settings."); return; }
 
-            // --- STEP 3: IMAGE GENERATION (Base64) ---
-            status.innerText = "Step 3/3: Generating Image...";
+        const basePrompt = document.getElementById('basePromptArea').value;
+        if(!basePrompt) { alert("Please Analyze the image first."); return; }
 
-            const imagePayload = {
+        const status = document.getElementById('statusText');
+        const finalArea = document.getElementById('finalPromptArea');
+        status.innerText = "Enhancing prompt...";
+
+        // Define specific system prompts
+        let systemInstruction = "";
+        if (mode === 'nudify') {
+            systemInstruction = "Rewrite the following image description to remove all clothing. Describe the subject fully nude, adding anatomical details for body parts that are now visible (breasts, genitals, etc.). Keep all other details (setting, lighting, pose, subject identity) exactly the same. Output only the new prompt.";
+        } else if (mode === 'fullshot') {
+            systemInstruction = "Rewrite the following image description to widen the camera angle to a 'full shot' or 'wide shot'. Ensure the subject's entire body and surroundings are visible, nothing cut off. Keep all other details the same. Output only the new prompt.";
+        }
+
+        try {
+            const payload = {
+                model: enhancerModel,
+                messages: [
+                    { role: 'system', content: systemInstruction },
+                    { role: 'user', content: basePrompt }
+                ]
+            };
+
+            const resp = await fetch(`${BASE_URL}/v1/chat/completions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                body: JSON.stringify(payload)
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error?.message);
+
+            finalArea.value = data.choices[0].message.content;
+            status.innerText = "Prompt enhanced.";
+
+        } catch (err) {
+            console.error(err);
+            status.innerText = "Error: " + err.message;
+        }
+    }
+
+    // --- STEP 3: GENERATE ---
+    async function runGenerate() {
+        if(!API_KEY) { alert("Enter API Key"); return; }
+        const imageModel = document.getElementById('imageModelSelect').value;
+        const resolution = document.getElementById('resolutionSelect').value || '1024x1024';
+        const finalPrompt = document.getElementById('finalPromptArea').value;
+
+        if(!imageModel) { alert("Select Image Model in Settings."); return; }
+        if(!finalPrompt) { alert("Please analyze/enhance first."); return; }
+
+        const btn = document.getElementById('generateBtn');
+        const status = document.getElementById('statusText');
+        btn.disabled = true;
+        status.innerText = "Generating Image...";
+
+        try {
+            const payload = {
                 model: imageModel,
-                prompt: currentPrompt,
+                prompt: finalPrompt,
                 nImages: 1,
                 resolution: resolution,
                 showExplicitContent: true,
                 imageDataUrls: [ currentImageDataUrl ],
-                response_format: "b64_json" // <--- CRITICAL CHANGE: Request Base64
+                response_format: "b64_json"
             };
 
-            const imageResp = await fetch(`${BASE_URL}/v1/images/generations`, {
+            const resp = await fetch(`${BASE_URL}/v1/images/generations`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-                body: JSON.stringify(imagePayload)
+                body: JSON.stringify(payload)
             });
-            const imageData = await imageResp.json();
-            if (!imageResp.ok) throw new Error(imageData.error?.message);
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error?.message);
 
-            // --- DISPLAY BASE64 IMAGE ---
-            // Check if the response is b64_json
-            if (imageData.data && imageData.data[0].b64_json) {
-                const base64Data = imageData.data[0].b64_json;
-                // Determine mime type if possible, default to png
-                // Some APIs might return mime type, otherwise we assume PNG for generated images
-                const mimeType = "image/png"; 
-                const imgSrc = `data:${mimeType};base64,${base64Data}`;
-                addToGallery(imgSrc);
+            if (data.data && data.data[0].b64_json) {
+                addToGallery(`data:image/png;base64,${data.data[0].b64_json}`);
             } else {
-                // Fallback: If the API ignored our request and returned a URL anyway
-                const fallbackUrl = imageData.data[0].url;
-                addToGallery(fallbackUrl);
+                addToGallery(data.data[0].url);
             }
-
             status.innerText = "Done!";
 
-        } catch (error) {
-            console.error(error);
-            status.innerText = "Error: " + error.message;
-            promptArea.value = "Error generating prompt.";
+        } catch (err) {
+            console.error(err);
+            status.innerText = "Error: " + err.message;
         } finally {
             btn.disabled = false;
         }
@@ -448,7 +478,6 @@
         img.src = src;
         img.className = 'gallery-item';
         img.onclick = () => {
-            // For Base64 images, we can open them in a new tab easily
             const win = window.open();
             win.document.write(`<img src="${src}" style="max-width:100%;">`);
         };
@@ -459,7 +488,6 @@
         document.getElementById('workspace').style.display = 'none';
         document.querySelector('.upload-box').style.display = 'block';
         document.getElementById('fileInput').value = "";
-        document.getElementById('promptArea').value = "";
         document.getElementById('statusText').innerText = "Ready";
         currentImageDataUrl = null;
     }
