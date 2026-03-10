@@ -49,7 +49,6 @@
         }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-secondary { background: var(--card-bg); border: 1px solid var(--border); }
-        .btn-small { padding: 8px; font-size: 14px; margin-top: 5px; }
 
         /* Workspace */
         .upload-box {
@@ -69,9 +68,6 @@
         .gallery-item {
             width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer;
         }
-        
-        /* Loading overlay for modal */
-        .loading-row { background: #333; color: #888; padding: 10px; border-radius: 8px; text-align: center; }
     </style>
 </head>
 <body>
@@ -196,7 +192,6 @@
             openSettings();
             document.getElementById('statusText').innerText = "Enter API Key in Settings";
         } else {
-            // Fetch models immediately if key exists
             fetchModels();
         }
     });
@@ -212,14 +207,13 @@
         localStorage.setItem('nanogpt_key', API_KEY);
         localStorage.setItem('vision_system', document.getElementById('visionSystemPrompt').value);
         localStorage.setItem('enhancer_system', document.getElementById('enhancerSystemPrompt').value);
-        saveSelectedModels(); // Save dropdown states
+        saveSelectedModels(); 
         
         document.getElementById('settingsModal').classList.remove('active');
         alert("Settings Saved");
     }
 
     function saveSelectedModels() {
-        // Simple debounce or just save on change
         localStorage.setItem('sel_vision', document.getElementById('visionModelSelect').value);
         localStorage.setItem('sel_enhancer', document.getElementById('enhancerModelSelect').value);
         localStorage.setItem('sel_image', document.getElementById('imageModelSelect').value);
@@ -246,17 +240,16 @@
             const textData = await textResp.json();
             allTextModels = textData.data || [];
 
-            // Populate Vision (Filter: capabilities.vision == true)
+            // Populate Vision
             let visionHTML = '';
             allTextModels.filter(m => m.capabilities?.vision).forEach(m => {
                 visionHTML += `<option value="${m.id}">${m.name || m.id}</option>`;
             });
             visionSelect.innerHTML = visionHTML;
 
-            // Populate Enhancer (Filter: Text models. Optional: category='uncensored')
+            // Populate Enhancer
             let enhancerHTML = '<option value="">-- Disabled --</option>';
             allTextModels.filter(m => {
-                // Logic: It's a text model if it has completions capability or lacks image_generation
                 const isText = !m.capabilities?.image_generation;
                 if(!isText) return false;
                 if(uncensoredChecked) return m.category === 'uncensored';
@@ -276,24 +269,24 @@
             let imageHTML = '';
             allImageModels.filter(m => {
                 if(nsfwChecked) return m.capabilities?.nsfw === true;
-                return true; // If unchecked, show all
+                return true;
             }).forEach(m => {
                 imageHTML += `<option value="${m.id}">${m.name || m.id}</option>`;
             });
             imageSelect.innerHTML = imageHTML;
 
-            // Restore previous selections if they exist
+            // Restore Selections
             if(localStorage.getItem('sel_vision')) visionSelect.value = localStorage.getItem('sel_vision');
             if(localStorage.getItem('sel_enhancer')) enhancerSelect.value = localStorage.getItem('sel_enhancer');
             if(localStorage.getItem('sel_image')) {
                 imageSelect.value = localStorage.getItem('sel_image');
-                updateResolutions(); // Update resolutions dropdown
+                updateResolutions();
             }
 
         } catch (err) {
             console.error(err);
-            visionSelect.innerHTML = '<option value="">Error Loading</option>';
-            imageSelect.innerHTML = '<option value="">Error Loading</option>';
+            visionSelect.innerHTML = '<option value="">Error</option>';
+            imageSelect.innerHTML = '<option value="">Error</option>';
         }
     }
 
@@ -302,23 +295,15 @@
         const resSelect = document.getElementById('resolutionSelect');
         saveSelectedModels();
 
-        if (!modelId) {
-            resSelect.innerHTML = '<option value="">Select Model</option>';
-            return;
-        }
+        if (!modelId) { resSelect.innerHTML = '<option value="">Select Model</option>'; return; }
 
-        // Find model in cached list
         const model = allImageModels.find(m => m.id === modelId);
         
         if (model && model.supported_parameters?.resolutions) {
             const resList = model.supported_parameters.resolutions;
             resSelect.innerHTML = resList.map(r => `<option value="${r}">${r}</option>`).join('');
-            
-            // Try to restore saved resolution or default to first
             const savedRes = localStorage.getItem('sel_resolution');
-            if (savedRes && resList.includes(savedRes)) {
-                resSelect.value = savedRes;
-            }
+            if (savedRes && resList.includes(savedRes)) resSelect.value = savedRes;
         } else {
             resSelect.innerHTML = '<option value="1024x1024">1024x1024 (Default)</option>';
         }
@@ -354,7 +339,7 @@
         const visionSys = document.getElementById('visionSystemPrompt').value;
         const enhancerSys = document.getElementById('enhancerSystemPrompt').value;
 
-        if(!visionModel || !imageModel) { alert("Please select Vision and Image models in Settings."); return; }
+        if(!visionModel || !imageModel) { alert("Select Vision & Image models."); return; }
 
         btn.disabled = true;
         let currentPrompt = "";
@@ -386,7 +371,7 @@
             currentPrompt = visionData.choices[0].message.content;
             promptArea.value = currentPrompt;
 
-            // --- STEP 2: ENHANCER (If selected) ---
+            // --- STEP 2: ENHANCER ---
             if (enhancerModel) {
                 status.innerText = "Step 2/3: Enhancing Prompt...";
                 
@@ -407,10 +392,10 @@
                 if (!enhanceResp.ok) throw new Error(enhanceData.error?.message);
 
                 currentPrompt = enhanceData.choices[0].message.content;
-                promptArea.value = currentPrompt; // Update UI
+                promptArea.value = currentPrompt; 
             }
 
-            // --- STEP 3: IMAGE GENERATION ---
+            // --- STEP 3: IMAGE GENERATION (Base64) ---
             status.innerText = "Step 3/3: Generating Image...";
 
             const imagePayload = {
@@ -418,8 +403,9 @@
                 prompt: currentPrompt,
                 nImages: 1,
                 resolution: resolution,
-                showExplicitContent: true, // Always send true for your use case
-                imageDataUrls: [ currentImageDataUrl ]
+                showExplicitContent: true,
+                imageDataUrls: [ currentImageDataUrl ],
+                response_format: "b64_json" // <--- CRITICAL CHANGE: Request Base64
             };
 
             const imageResp = await fetch(`${BASE_URL}/v1/images/generations`, {
@@ -430,8 +416,21 @@
             const imageData = await imageResp.json();
             if (!imageResp.ok) throw new Error(imageData.error?.message);
 
-            const imageUrl = imageData.data[0].url;
-            addToGallery(imageUrl);
+            // --- DISPLAY BASE64 IMAGE ---
+            // Check if the response is b64_json
+            if (imageData.data && imageData.data[0].b64_json) {
+                const base64Data = imageData.data[0].b64_json;
+                // Determine mime type if possible, default to png
+                // Some APIs might return mime type, otherwise we assume PNG for generated images
+                const mimeType = "image/png"; 
+                const imgSrc = `data:${mimeType};base64,${base64Data}`;
+                addToGallery(imgSrc);
+            } else {
+                // Fallback: If the API ignored our request and returned a URL anyway
+                const fallbackUrl = imageData.data[0].url;
+                addToGallery(fallbackUrl);
+            }
+
             status.innerText = "Done!";
 
         } catch (error) {
@@ -443,12 +442,16 @@
         }
     }
 
-    function addToGallery(url) {
+    function addToGallery(src) {
         const gallery = document.getElementById('gallery');
         const img = document.createElement('img');
-        img.src = url;
+        img.src = src;
         img.className = 'gallery-item';
-        img.onclick = () => window.open(url, '_blank');
+        img.onclick = () => {
+            // For Base64 images, we can open them in a new tab easily
+            const win = window.open();
+            win.document.write(`<img src="${src}" style="max-width:100%;">`);
+        };
         gallery.prepend(img);
     }
 
