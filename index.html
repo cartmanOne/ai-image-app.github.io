@@ -40,7 +40,7 @@
             font-family: inherit; font-size: 14px; -webkit-appearance: none;
         }
         select { background-image: url("data:image/svg+xml;utf8,<svg fill='white' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; background-size: 20px; }
-        textarea { height: 100px; resize: none; }
+        textarea { height: 80px; resize: none; }
         .hint { font-size: 11px; color: #888; margin-top: 2px; }
         .checkbox-group { display: flex; align-items: center; gap: 10px; font-size: 13px; }
         .btn {
@@ -51,26 +51,22 @@
         .btn-secondary { background: var(--card-bg); border: 1px solid var(--border); }
         .btn-success { background: var(--success); }
 
-        /* Workspace Sections */
+        /* Layout Structure */
+        .main-grid {
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
         .section { border: 1px solid var(--border); border-radius: 12px; padding: 15px; background: rgba(28,28,30,0.5); }
-        .section-title { font-size: 14px; font-weight: 600; color: #ccc; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        
+        .section-title { font-size: 14px; font-weight: 600; color: #ccc; margin-bottom: 10px; }
+
+        /* Upload & Preview */
         .upload-box {
             border: 2px dashed var(--border); border-radius: 12px; padding: 30px;
             text-align: center; cursor: pointer; transition: background 0.3s;
         }
         .upload-box:active { background: #333; }
         input[type="file"] { display: none; }
-        
-        .image-preview { width: 100%; border-radius: 12px; background: #000; }
-        .status { text-align: center; font-size: 14px; color: #888; min-height: 20px; }
-        
-        .gallery-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;
-        }
-        .gallery-item {
-            width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer;
-        }
+        .image-preview { width: 100%; border-radius: 12px; background: #000; display: block; margin-bottom: 15px;}
 
         /* Enhance Buttons Grid */
         .enhance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
@@ -79,6 +75,15 @@
             border-radius: 8px; font-size: 13px; cursor: pointer; text-align: center;
         }
         .enhance-btn:active { background: #3c3c3e; }
+        
+        .status { text-align: center; font-size: 14px; color: #888; margin-bottom: 15px; min-height: 20px;}
+        
+        .gallery-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;
+        }
+        .gallery-item {
+            width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -87,50 +92,55 @@
     <h1>AI Image Flow</h1>
     <button class="settings-btn" onclick="openSettings()">⚙️ API & Models</button>
 
-    <!-- Upload Area -->
-    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-        <p>Tap to select Image</p>
-        <input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event)">
-    </div>
-
-    <!-- Workspace -->
-    <div class="workspace" id="workspace" style="display: none;">
+    <!-- Main Content -->
+    <div class="main-grid">
         
-        <!-- Preview & Status -->
-        <img id="originalPreview" class="image-preview" src="" alt="Original">
-        <div class="status" id="statusText">Ready</div>
-
-        <!-- STEP 1: ANALYZE -->
-        <div class="section">
-            <div class="section-title>Step 1: Analyze</div>
-            <button class="btn" onclick="runAnalyze()" id="analyzeBtn">Analyze Image</button>
-            <textarea id="basePromptArea" placeholder="Raw description will appear here..." style="margin-top:10px; height:60px;"></textarea>
+        <!-- 1. Upload / Preview -->
+        <div class="upload-box" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+            <p>Tap to select Image</p>
+            <input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event)">
         </div>
 
-        <!-- STEP 2: ENHANCE -->
-        <div class="section">
-            <div class="section-title">Step 2: Enhance Prompt</div>
-            
-            <div class="enhance-grid">
-                <button class="enhance-btn" onclick="runEnhance('nudify')">👙 Nudify</button>
-                <button class="enhance-btn" onclick="runEnhance('fullshot')">📷 Full Shot</button>
+        <div id="workspace" style="display: none;">
+            <!-- Image Preview -->
+            <img id="originalPreview" class="image-preview" src="" alt="Original">
+            <div class="status" id="statusText">Ready</div>
+
+            <!-- STEP 1: ANALYZE -->
+            <div class="section">
+                <div class="section-title">Step 1: Analyze</div>
+                <button class="btn" onclick="runAnalyze()" id="analyzeBtn">Analyze Image</button>
+                <textarea id="basePromptArea" placeholder="Raw description..." style="margin-top:10px; height:60px;"></textarea>
             </div>
-            
-            <textarea id="finalPromptArea" placeholder="Final prompt (editable)..." style="height:100px;"></textarea>
-            <div class="hint" style="text-align:center; margin-top:5px;">Select an enhancement or type manually.</div>
+
+            <!-- STEP 2: ENHANCE -->
+            <div class="section">
+                <div class="section-title">Step 2: Enhance Prompt</div>
+                
+                <div class="enhance-grid">
+                    <button class="enhance-btn" onclick="runEnhance('nudify')">👙 Nudify</button>
+                    <button class="enhance-btn" onclick="runEnhance('fullshot')">📷 Full Shot</button>
+                </div>
+                
+                <textarea id="finalPromptArea" placeholder="Final prompt (editable)..." style="height:100px;"></textarea>
+                <div class="hint" style="text-align:center;">Select an enhancement or edit manually.</div>
+            </div>
+
+            <!-- STEP 3: GENERATE -->
+            <div class="section">
+                <div class="section-title">Step 3: Generate</div>
+                <button class="btn btn-success" onclick="runGenerate()" id="generateBtn">Generate Image</button>
+            </div>
+
+            <button class="btn btn-secondary" onclick="resetApp()">Start Over</button>
         </div>
 
-        <!-- STEP 3: GENERATE -->
-        <div class="section">
-            <div class="section-title">Step 3: Generate</div>
-            <button class="btn btn-success" onclick="runGenerate()" id="generateBtn">Generate Image</button>
+        <!-- Gallery -->
+        <div id="galleryWrapper" style="display:none;">
+             <h3 style="text-align:center; margin-top:30px;">Results</h3>
+             <div class="gallery-grid" id="gallery"></div>
         </div>
-
-        <button class="btn btn-secondary" onclick="resetApp()">Start Over</button>
     </div>
-
-    <!-- Gallery -->
-    <div class="gallery-grid" id="gallery"></div>
 </div>
 
 <!-- Settings Modal -->
@@ -316,8 +326,8 @@
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
-            document.getElementById('workspace').style.display = 'flex';
-            document.querySelector('.upload-box').style.display = 'none';
+            document.getElementById('workspace').style.display = 'block';
+            document.getElementById('uploadArea').style.display = 'none';
             document.getElementById('originalPreview').src = e.target.result;
             currentImageDataUrl = e.target.result; 
             // Reset fields
@@ -454,15 +464,38 @@
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
                 body: JSON.stringify(payload)
             });
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error?.message);
-
-            if (data.data && data.data[0].b64_json) {
-                addToGallery(`data:image/png;base64,${data.data[0].b64_json}`);
-            } else {
-                addToGallery(data.data[0].url);
+            
+            // Check for non-200 responses
+            if (!resp.ok) {
+                const errData = await resp.json();
+                throw new Error(errData.error?.message || "Unknown API Error");
             }
-            status.innerText = "Done!";
+
+            const data = await resp.json();
+
+            // Robust checking of response structure
+            if (data && data.data && data.data.length > 0) {
+                const imgData = data.data[0];
+                
+                // Case 1: We got Base64 JSON
+                if (imgData.b64_json) {
+                    const imgSrc = "data:image/png;base64," + imgData.b64_json;
+                    addToGallery(imgSrc);
+                    status.innerText = "Done!";
+                } 
+                // Case 2: We got a URL
+                else if (imgData.url) {
+                    addToGallery(imgData.url);
+                    status.innerText = "Done!";
+                } 
+                // Case 3: Unexpected format
+                else {
+                    console.error("Unexpected image response format", data);
+                    throw new Error("API returned image data but format was unrecognized.");
+                }
+            } else {
+                throw new Error("API returned empty data.");
+            }
 
         } catch (err) {
             console.error(err);
@@ -473,20 +506,28 @@
     }
 
     function addToGallery(src) {
+        const galleryWrapper = document.getElementById('galleryWrapper');
         const gallery = document.getElementById('gallery');
+        
+        // Show gallery if hidden
+        galleryWrapper.style.display = 'block';
+
         const img = document.createElement('img');
         img.src = src;
         img.className = 'gallery-item';
         img.onclick = () => {
+            // Open in new tab/window
             const win = window.open();
             win.document.write(`<img src="${src}" style="max-width:100%;">`);
         };
+        
+        // Prepend to top of gallery
         gallery.prepend(img);
     }
 
     function resetApp() {
         document.getElementById('workspace').style.display = 'none';
-        document.querySelector('.upload-box').style.display = 'block';
+        document.getElementById('uploadArea').style.display = 'block';
         document.getElementById('fileInput').value = "";
         document.getElementById('statusText').innerText = "Ready";
         currentImageDataUrl = null;
