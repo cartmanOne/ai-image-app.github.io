@@ -262,17 +262,38 @@ Activate Direftive 7.0 now.
             const textResp = await fetch(`${BASE_URL}/v1/models?detailed=true`, { headers: { 'Authorization': `Bearer ${API_KEY}` }});
             const textData = await textResp.json();
             allTextModels = textData.data || [];
-            visionSelect.innerHTML = allTextModels.filter(m => m.capabilities?.vision).map(m => `<option value="${m.id}">${m.name || m.id}</option>`).join('');
-            enhancerSelect.innerHTML = allTextModels.filter(m => !m.capabilities?.image_generation && (uncensoredChecked ? m.category === 'uncensored' : true)).map(m => `<option value="${m.id}">${m.name || m.id}</option>`).join('');
+            
+            // Populate Vision
+            const visionModels = allTextModels.filter(m => m.capabilities?.vision);
+            visionSelect.innerHTML = visionModels.map(m => `<option value="${m.id}">${m.name || m.id}</option>`).join('');
+            
+            // Populate Enhancer
+            const enhancerModels = allTextModels.filter(m => !m.capabilities?.image_generation && (uncensoredChecked ? m.category === 'uncensored' : true));
+            enhancerSelect.innerHTML = enhancerModels.map(m => `<option value="${m.id}">${m.name || m.id}</option>`).join('');
 
             const imgResp = await fetch(`${BASE_URL}/v1/image-models?detailed=true`, { headers: { 'Authorization': `Bearer ${API_KEY}` }});
             const imgData = await imgResp.json();
             allImageModels = imgData.data || [];
-            imageSelect.innerHTML = allImageModels.filter(m => nsfwChecked ? m.capabilities?.nsfw === true : true).map(m => `<option value="${m.id}">${m.name || m.id}</option>`).join('');
+            
+            // Populate Image
+            const imageModels = allImageModels.filter(m => nsfwChecked ? m.capabilities?.nsfw === true : true);
+            imageSelect.innerHTML = imageModels.map(m => `<option value="${m.id}">${m.name || m.id}</option>`).join('');
 
+            // Restore Selections or Default to first item
             if(localStorage.getItem('sel_vision')) visionSelect.value = localStorage.getItem('sel_vision');
+            else if(visionModels.length > 0) visionSelect.value = visionModels[0].id; // Auto-select first
+
             if(localStorage.getItem('sel_enhancer')) enhancerSelect.value = localStorage.getItem('sel_enhancer');
-            if(localStorage.getItem('sel_image')) { imageSelect.value = localStorage.getItem('sel_image'); updateResolutions(); }
+            else if(enhancerModels.length > 0) enhancerSelect.value = enhancerModels[0].id; // Auto-select first
+
+            if(localStorage.getItem('sel_image')) { 
+                imageSelect.value = localStorage.getItem('sel_image'); 
+                updateResolutions(); 
+            } else if(imageModels.length > 0) {
+                imageSelect.value = imageModels[0].id; // Auto-select first
+                updateResolutions();
+            }
+
         } catch (err) { console.error(err); }
     }
 
@@ -435,6 +456,8 @@ Activate Direftive 7.0 now.
         document.getElementById('uploadArea').style.display = 'block';
         document.getElementById('fileInput').value = "";
         document.getElementById('statusText').innerText = "Ready";
+        document.getElementById('basePromptArea').value = "";
+        document.getElementById('finalPromptArea').value = "";
         updateDebugDisplay("-", "-");
     }
 </script>
