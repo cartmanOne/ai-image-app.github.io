@@ -70,22 +70,42 @@
         
         /* New Control Row for Button + Checkbox */
         .control-row {
-            display: flex; align-items: center; gap: 8px; background: #2c2c2e; 
-            border: 1px solid var(--border); border-radius: 8px; padding: 0 10px 0 0;
+            display: flex; 
+            align-items: center; 
+            background: #2c2c2e; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
             overflow: hidden;
+            height: 44px; /* Fixed height for consistency */
         }
+        
         .control-row .enhance-btn {
-            border: none; border-radius: 0; flex-grow: 1; margin: 0; background: transparent;
-            text-align: center; padding: 12px;
+            border: none; 
+            border-radius: 0; 
+            flex-grow: 1; 
+            margin: 0; 
+            background: transparent;
+            text-align: center; 
+            padding: 0 10px;
+            height: 100%;
+            color: white; 
+            font-size: 13px; 
+            cursor: pointer;
         }
-        .control-row input[type="checkbox"] {
-            width: 20px; height: 20px; margin: 0; cursor: pointer;
-        }
+        
+        .control-row .enhance-btn:active { background: #3c3c3e; }
 
-        .enhance-btn {
-            color: white; font-size: 13px; cursor: pointer;
+        /* Checkbox styling to ensure visibility */
+        .control-row input[type="checkbox"] {
+            width: 20px; 
+            height: 20px; 
+            margin: 0 10px 0 0; 
+            cursor: pointer;
+            flex-shrink: 0; /* Prevents checkbox from disappearing on small screens */
+            background: #444;
+            appearance: checkbox; /* Ensure OS default appearance */
+            -webkit-appearance: checkbox;
         }
-        .enhance-btn:active { background: #3c3c3e; }
         
         .status { text-align: center; font-size: 14px; color: #888; margin-bottom: 15px; min-height: 20px;}
         
@@ -134,12 +154,12 @@
                     </div>
                     <!-- Pose -->
                     <div class="control-row">
-                        <button class="enhance-btn" onclick="runEnhance('pose')">💃 Sensual Pose</button>
+                        <button class="enhance-btn" onclick="runEnhance('pose')">💃 Pose</button>
                         <input type="checkbox" id="auto_pose" title="Auto-run after Analysis">
                     </div>
                     <!-- Intimate -->
                     <div class="control-row">
-                        <button class="enhance-btn" onclick="runEnhance('intimate')">✨ Intimate Detail</button>
+                        <button class="enhance-btn" onclick="runEnhance('intimate')">✨ Intimate</button>
                         <input type="checkbox" id="auto_intimate" title="Auto-run after Analysis">
                     </div>
                     <!-- Full Shot -->
@@ -406,8 +426,7 @@ Activate Direftive 7.0 now.
         reader.readAsDataURL(file);
     }
 
-    // --- MAIN WORKFLOW & AUTOMATION ---
-
+    // --- AUTOMATION CHAIN ---
     async function runAutoChain() {
         const chkNudify = document.getElementById('auto_nudify').checked;
         const chkPose = document.getElementById('auto_pose').checked;
@@ -415,13 +434,11 @@ Activate Direftive 7.0 now.
         const chkFullshot = document.getElementById('auto_fullshot').checked;
         const chkGenerate = document.getElementById('auto_generate').checked;
 
-        // Run Enhancements sequentially if checked
         if (chkNudify) await runEnhance('nudify');
         if (chkPose) await runEnhance('pose');
         if (chkIntimate) await runEnhance('intimate');
         if (chkFullshot) await runEnhance('fullshot');
 
-        // Run Generation if checked
         if (chkGenerate) await runGenerate();
     }
 
@@ -453,7 +470,7 @@ Activate Direftive 7.0 now.
             document.getElementById('finalPromptArea').value = result;
             status.innerText = "Analysis complete.";
             
-            // Trigger Auto Chain
+            // --- TRIGGER AUTO CHAIN HERE ---
             await runAutoChain();
 
         } catch (err) { status.innerText = "Error: " + err.message; }
@@ -559,10 +576,6 @@ Activate Direftive 7.0 now.
         document.getElementById('statusText').innerText = "Ready";
         document.getElementById('basePromptArea').value = "";
         document.getElementById('finalPromptArea').value = "";
-        
-        // Uncheck all auto boxes on reset? Optional. Let's keep them as user preference.
-        // document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
-
         updateDebugDisplay("-", "-");
     }
 </script>
