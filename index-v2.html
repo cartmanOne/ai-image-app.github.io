@@ -3,294 +3,246 @@
 <html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>The Synthetic Atelier | Editor</title>
+<title>Atelier AI | Multi-Model Editor</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "secondary-fixed": "#e4e2e4",
-                        "on-surface-variant": "#c0c6d6",
-                        "tertiary-fixed": "#e2e2e2",
-                        "surface-variant": "#353437",
-                        "on-primary-fixed": "#001b3e",
-                        "on-tertiary": "#2f3131",
-                        "surface-container-high": "#2a2a2c",
-                        "surface-container-lowest": "#0e0e10",
-                        "on-tertiary-container": "#282a2a",
-                        "on-primary-container": "#002957",
-                        "on-secondary-fixed-variant": "#474649",
-                        "on-secondary-fixed": "#1b1b1d",
-                        "on-error-container": "#ffdad6",
-                        "error": "#ffb4ab",
-                        "surface-tint": "#aac7ff",
-                        "tertiary-fixed-dim": "#c6c6c7",
-                        "inverse-on-surface": "#303032",
-                        "secondary-container": "#474649",
-                        "surface-bright": "#39393b",
-                        "on-surface": "#e4e2e4",
-                        "primary": "#aac7ff",
-                        "outline": "#8b91a0",
-                        "surface-container": "#1f1f21",
-                        "inverse-primary": "#005db8",
-                        "on-primary-fixed-variant": "#00468d",
-                        "outline-variant": "#414754",
-                        "surface-container-highest": "#353437",
-                        "primary-fixed": "#d6e3ff",
-                        "primary-fixed-dim": "#aac7ff",
-                        "on-tertiary-fixed-variant": "#454747",
-                        "surface-container-low": "#1b1b1d",
-                        "error-container": "#93000a",
-                        "on-secondary": "#303032",
-                        "secondary-fixed-dim": "#c8c6c8",
-                        "surface-dim": "#131315",
-                        "on-tertiary-fixed": "#1a1c1c",
-                        "tertiary": "#c6c6c7",
-                        "on-background": "#e4e2e4",
-                        "background": "#131315",
-                        "surface": "#131315",
-                        "inverse-surface": "#e4e2e4",
-                        "primary-container": "#3e90ff",
-                        "on-secondary-container": "#b6b4b7",
-                        "secondary": "#c8c6c8",
-                        "on-primary": "#003064",
-                        "tertiary-container": "#909191",
-                        "on-error": "#690005"
-                    },
-                    fontFamily: {
-                        "headline": ["Space Grotesk"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                },
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#690005",
+              "surface-bright": "#39393b",
+              "outline-variant": "#414754",
+              "tertiary-container": "#909191",
+              "surface": "#131315",
+              "secondary": "#c8c6c8",
+              "on-surface-variant": "#c0c6d6",
+              "tertiary": "#c6c6c7",
+              "on-primary-container": "#002957",
+              "primary-fixed": "#d6e3ff",
+              "primary-fixed-dim": "#aac7ff",
+              "secondary-fixed-dim": "#c8c6c8",
+              "tertiary-fixed-dim": "#c6c6c7",
+              "surface-container-lowest": "#0e0e10",
+              "on-secondary": "#303032",
+              "on-primary-fixed-variant": "#00468d",
+              "inverse-primary": "#005db8",
+              "error": "#ffb4ab",
+              "surface-container-high": "#2a2a2c",
+              "on-primary-fixed": "#001b3e",
+              "surface-container-low": "#1b1b1d",
+              "surface-container-highest": "#353437",
+              "inverse-surface": "#e4e2e4",
+              "inverse-on-surface": "#303032",
+              "surface-dim": "#131315",
+              "outline": "#8b91a0",
+              "on-secondary-fixed": "#1b1b1d",
+              "on-background": "#e4e2e4",
+              "primary-container": "#3e90ff",
+              "surface-variant": "#353437",
+              "surface-tint": "#aac7ff",
+              "background": "#131315",
+              "on-secondary-fixed-variant": "#474649",
+              "on-primary": "#003064",
+              "on-error-container": "#ffdad6",
+              "on-tertiary": "#2f3131",
+              "secondary-fixed": "#e4e2e4",
+              "secondary-container": "#474649",
+              "on-secondary-container": "#b6b4b7",
+              "primary": "#aac7ff",
+              "tertiary-fixed": "#e2e2e2",
+              "on-tertiary-fixed": "#1a1c1c",
+              "on-tertiary-container": "#282a2a",
+              "surface-container": "#1f1f21",
+              "on-tertiary-fixed-variant": "#454747",
+              "on-surface": "#e4e2e4",
+              "error-container": "#93000a"
             },
-        }
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
     </script>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
         }
         .glass-panel {
-            background: rgba(19, 19, 21, 0.6);
+            background: rgba(31, 31, 33, 0.6);
             backdrop-filter: blur(20px);
         }
-        ::-webkit-scrollbar {
-            width: 4px;
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        ::-webkit-scrollbar-track {
-            background: #131315;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #353437;
-            border-radius: 10px;
-        }
-        body {
-            min-height: max(884px, 100dvh);
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
 </head>
-<body class="bg-background text-on-surface font-body min-h-screen selection:bg-primary/30 selection:text-primary">
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
 <!-- TopAppBar -->
-<header class="bg-[#131315]/60 backdrop-blur-xl docked full-width top-0 sticky z-50 flex justify-between items-center px-6 py-4 w-full">
+<header class="bg-zinc-900/60 backdrop-blur-xl fixed top-0 z-50 flex justify-between items-center w-full px-6 py-4">
 <div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-[#aac7ff]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
-<h1 class="text-[#aac7ff] font-['Space_Grotesk'] font-bold text-lg uppercase tracking-widest">The Synthetic Atelier</h1>
+<span class="material-symbols-outlined text-blue-200" data-icon="brush">brush</span>
+<h1 class="text-xl font-bold tracking-widest text-blue-200 uppercase font-['Space_Grotesk']">Atelier AI</h1>
 </div>
-<nav class="hidden md:flex items-center gap-8">
-<a class="text-[#aac7ff] scale-95 transition-transform font-['Inter'] text-sm font-medium tracking-wide" href="#">Editor</a>
-<a class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors font-['Inter'] text-sm font-medium tracking-wide" href="#">Bulk</a>
-<a class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors font-['Inter'] text-sm font-medium tracking-wide" href="#">Gallery</a>
-<button class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors">
-<span class="material-symbols-outlined">settings</span>
-</button>
-</nav>
-<div class="md:hidden">
-<span class="material-symbols-outlined text-[#e4e2e4]/70">menu</span>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center gap-6 px-4">
+<button class="text-blue-200 font-medium text-sm tracking-wide">Editor</button>
+<button class="text-zinc-400 hover:text-blue-100 transition-colors text-sm tracking-wide">Gallery</button>
+<button class="text-zinc-400 hover:text-blue-100 transition-colors text-sm tracking-wide">Bulk</button>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center overflow-hidden">
+<img alt="User Portrait" class="w-full h-full object-cover" data-alt="Close-up portrait of a stylish person with soft editorial lighting and deep contrast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6PUEpAhVXdJtAE9Bne4npUZwEoxuAbZBPTVCTTS-61fAAEX22IDJjfLUZBGUl2SCX2FaXcRgThJdsPFwaAxKiEKtjA8PxyyBwe-H-56y72eM9aUG239xlRPxAelX6X3L5CFw3e4viVNtKGdhTPHWIeRnVeXZMdGH-9uRSeAKvSdWtb_yJXQvJ5-DIbjYEKvjnOJYbn_BpCr_s_E0TasoLuWvh8DyiwTkZjETPq-Z0z_mbuWQUXzh3TZFqfoAh8S9peRvagwIISUAQ"/>
+</div>
 </div>
 </header>
-<main class="max-w-7xl mx-auto px-6 py-12 pb-32">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-<!-- Left Column: Canvas & Analysis -->
-<div class="lg:col-span-7 space-y-8">
-<!-- Upload Area / Preview Canvas -->
-<section class="relative group aspect-square lg:aspect-[4/3] rounded-xl overflow-hidden bg-surface-container-lowest border-2 border-dashed border-outline-variant/30 flex items-center justify-center transition-all hover:border-primary/50">
-<img alt="Abstract digital art with fluid neon shapes" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqF2djpP2C3ntNyMj7FvXPEecZfNiVekyzPXJ0W7qAFRU0QKq7-pq1807z01_C-Dw9jnjY88_s0UwSyUZdI1YlYlMEqnwgVa2b2TVthRtc3te2zL2Q8Xa-71Q8N_7FvdOfFQOhYokMvoIFYJTSjTp4M0Fc4VrffvnDPQ1g9qFSssKb54sFVc9up7nngIP3LCLF-C8k7DqIuAiv-IusM1yQd8FjTWRk5Nry7C9VCa01JARP5OIaIJdqxCi_67e-IdxW4w8cTwOt2b1K"/>
-<div class="relative z-10 flex flex-col items-center text-center p-8 bg-surface-container-lowest/40 backdrop-blur-sm rounded-xl">
-<span class="material-symbols-outlined text-5xl text-primary mb-4" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
-<h3 class="font-headline text-2xl font-bold mb-2">Upload images</h3>
-<p class="text-on-surface-variant text-sm max-w-xs">Upload a raw vision to refine it through the Atelier's neural lens. <span class="block mt-1 font-bold text-primary/80">Multi-select enabled</span></p>
-<button class="mt-6 px-8 py-3 bg-primary text-on-primary font-bold rounded-full hover:scale-105 transition-transform">Browse Files</button>
-<button class="mt-4 px-6 py-2 border border-outline-variant/50 text-on-surface text-xs font-bold rounded-full hover:bg-surface-container-highest transition-colors flex items-center gap-2">
-<span class="material-symbols-outlined text-sm">layers</span>
-                            Switch to Bulk Mode
-                        </button>
+<main class="pt-20 pb-24 md:pb-0 h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- Left Sidebar: Tools -->
+<aside class="hidden md:flex flex-col w-80 bg-surface-container-low border-r border-outline-variant/10 p-6 overflow-y-auto hide-scrollbar">
+<div class="mb-8">
+<label class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold mb-4 block">Comparison Mode</label>
+<div class="bg-surface-container-lowest p-1 rounded-xl flex gap-1">
+<button class="flex-1 py-2 px-3 rounded-lg bg-surface-container-high text-primary text-xs font-semibold">Split</button>
+<button class="flex-1 py-2 px-3 rounded-lg text-zinc-500 text-xs font-semibold hover:bg-surface-container-high/50 transition-colors">Side-by-Side</button>
+</div>
+</div>
+<div class="space-y-6">
+<div>
+<label class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold mb-3 block">Primary Model</label>
+<div class="bg-surface-container-high p-4 rounded-xl border border-primary/20">
+<div class="flex justify-between items-center mb-1">
+<span class="text-primary font-headline text-sm font-bold">Lumina Refined v4</span>
+<span class="material-symbols-outlined text-xs text-primary" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<p class="text-[10px] text-zinc-400">Optimized for lighting &amp; texture</p>
+</div>
+</div>
+<div>
+<label class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold mb-3 block">Challenger Model</label>
+<div class="bg-surface-container-high p-4 rounded-xl border border-outline-variant/30">
+<div class="flex justify-between items-center mb-1">
+<span class="text-on-surface font-headline text-sm font-bold">Neuro-Texture Gen</span>
+<span class="material-symbols-outlined text-xs text-zinc-500" data-icon="science">science</span>
+</div>
+<p class="text-[10px] text-zinc-400">Experimental high-fidelity output</p>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-8">
+<button class="w-full py-4 bg-primary text-on-primary rounded-xl font-bold text-sm tracking-tight flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-lg" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                    REGENERATE BOTH
+                </button>
+</div>
+</aside>
+<!-- Main Canvas: Split View -->
+<section class="flex-1 relative bg-surface-container-lowest overflow-hidden flex flex-col">
+<!-- Mobile Header Controls -->
+<div class="md:hidden flex items-center justify-between px-6 py-4 bg-surface-container">
+<div class="flex gap-2">
+<span class="bg-primary/20 text-primary text-[10px] px-2 py-1 rounded font-bold uppercase tracking-tighter">Split View</span>
+</div>
+<button class="material-symbols-outlined text-zinc-400" data-icon="settings_input_component">settings_input_component</button>
+</div>
+<div class="flex-1 flex flex-col md:flex-row items-stretch overflow-hidden">
+<!-- Model A Side -->
+<div class="relative flex-1 group overflow-hidden border-b md:border-b-0 md:border-r border-outline-variant/20">
+<img alt="Model A Result" class="w-full h-full object-cover" data-alt="Abstract 3D render of flowing silk-like textures in deep blue and iridescent silver tones with cinematic volumetric lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk7cyFJzrjzFtl45YNbrxCfmwhcqbqG-jvs_zOixFTs_qEtcthMYE6FQ8wyEmdcfipOUzynThLrysV8GTy6jy-C9FGE4I-ClXq5GYcvWy7ZXSZJeev-8ellTw9CsC9b4jrFj7J0RIxfTOJHxT9ViMa2zSFwS2-33SyIM_mdNfXK90ILWSBPUM9Sv5M-KSAZmU5lQvwVhRo4ZFbq8h2BGUV01OXE3qLR3Nmqjz5G_TjDicFZqHGi6L_UuRuPqzMhlMroUJNsjitrhhF"/>
+<div class="absolute top-6 left-6 flex flex-col gap-2">
+<div class="glass-panel px-4 py-2 rounded-full border border-white/5 flex items-center gap-2 w-fit">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-xs font-headline font-bold text-white tracking-widest uppercase">Lumina Refined v4</span>
+</div>
+<div class="glass-panel px-3 py-1 rounded-lg border border-white/5 w-fit">
+<span class="text-[10px] font-bold text-primary tracking-widest uppercase">Generation: 8.4s</span>
+</div>
+</div>
+<div class="absolute bottom-6 left-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="glass-panel p-4 rounded-2xl border border-white/5">
+<p class="text-[10px] text-zinc-400 uppercase tracking-widest mb-1">Key Observation</p>
+<p class="text-sm text-zinc-200">Superior specular highlights on fluid edges.</p>
+</div>
+</div>
+</div>
+<!-- Model B Side -->
+<div class="relative flex-1 group overflow-hidden">
+<img alt="Model B Result" class="w-full h-full object-cover" data-alt="Abstract digital sculpture with intricate macro textures and neon orange glowing micro-filaments against a dark obsidian background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1xy9_64V6wBzOyM01HLm9kF46iid-fs7MhdK8QFOBQLSbHCkZ-FG3QdAUqZwuIAm8Vr6X0Sh4BH-14KoJW0myu62Sths8H4quVwdTH8wEo8D7d2ZgcIU2700vc9uaOS8qf-WEHoaapJ-njqaX9zTzsl-RR5AnB00xWBcMdwjxfg34l41a0WUR2PMebO7ynoi5cKMNOZuR79ocLXOW3LODYkbE_DO5OwtdByJzLAugMEtx_Nxb1P1MO8wS3gna9pvvVflYKNee4xTL"/>
+<div class="absolute top-6 right-6 flex flex-col items-end gap-2">
+<div class="glass-panel px-4 py-2 rounded-full border border-white/5 flex items-center gap-2 w-fit">
+<span class="w-2 h-2 rounded-full bg-zinc-400"></span>
+<span class="text-xs font-headline font-bold text-white tracking-widest uppercase text-right">Neuro-Texture Gen</span>
+</div>
+<div class="glass-panel px-3 py-1 rounded-lg border border-white/5 w-fit">
+<span class="text-[10px] font-bold text-zinc-400 tracking-widest uppercase">Generation: 12.1s</span>
+</div>
+</div>
+<div class="absolute bottom-6 left-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="glass-panel p-4 rounded-2xl border border-white/5">
+<p class="text-[10px] text-zinc-400 uppercase tracking-widest mb-1">Key Observation</p>
+<p class="text-sm text-zinc-200">Higher internal glow complexity in fiber clusters.</p>
+</div>
+</div>
+</div>
+<!-- Split Divider UI (Vertical on Desktop, Horizontal/None on Mobile layout demo) -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-4 pointer-events-none">
+<div class="w-[2px] h-32 bg-gradient-to-b from-transparent via-primary to-transparent opacity-50"></div>
+<div class="w-12 h-12 rounded-full glass-panel border border-primary/40 flex items-center justify-center pointer-events-auto cursor-ew-resize active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="unfold_more" style="transform: rotate(90deg);">unfold_more</span>
+</div>
+<div class="w-[2px] h-32 bg-gradient-to-b from-transparent via-primary to-transparent opacity-50"></div>
+</div>
+</div>
+<!-- Floating Tool HUD -->
+<div class="absolute bottom-8 left-1/2 -translate-x-1/2 glass-panel px-6 py-3 rounded-2xl border border-white/10 flex items-center gap-6 shadow-2xl">
+<button class="flex items-center gap-2 group">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary transition-colors" data-icon="zoom_in">zoom_in</span>
+<span class="text-[10px] text-zinc-500 uppercase font-bold tracking-tighter">Inspect</span>
+</button>
+<div class="w-[1px] h-4 bg-zinc-800"></div>
+<button class="flex items-center gap-2 group">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary transition-colors" data-icon="palette">palette</span>
+<span class="text-[10px] text-zinc-500 uppercase font-bold tracking-tighter">Adjust</span>
+</button>
+<div class="w-[1px] h-4 bg-zinc-800"></div>
+<button class="flex items-center gap-2 group">
+<span class="material-symbols-outlined text-primary" data-icon="file_download">file_download</span>
+<span class="text-[10px] text-primary uppercase font-bold tracking-tighter">Export Duo</span>
+</button>
 </div>
 </section>
-<!-- AI Analysis -->
-<section class="bg-surface-container rounded-xl p-8 space-y-4">
-<div class="flex items-center gap-2 mb-2">
-<span class="material-symbols-outlined text-primary text-sm">visibility</span>
-<h2 class="font-label text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Neural Perception Analysis</h2>
-</div>
-<p class="font-headline text-xl leading-relaxed">
-                        "The subject exhibits <span class="text-primary">high-contrast luminosity</span> with an emphasis on fluid organic structures. Ambient lighting suggests a <span class="text-primary-container">twilight spectrum</span> with subtle chromatic aberration in the peripheral fields. Composition follows a <span class="text-primary">dynamic spiral</span> arrangement."
-                    </p>
-<div class="flex flex-wrap gap-2 pt-2">
-<span class="px-3 py-1 bg-surface-container-highest text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">Cyber-Noir</span>
-<span class="px-3 py-1 bg-surface-container-highest text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">Organic Flow</span>
-<span class="px-3 py-1 bg-surface-container-highest text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">16:9 Aspect</span>
-</div>
-</section>
-</div>
-<!-- Right Column: Controls & Debug -->
-<div class="lg:col-span-5 space-y-8 lg:sticky lg:top-24">
-<!-- Enhancements -->
-<section class="bg-surface-container rounded-xl p-8 border border-outline-variant/10 shadow-xl">
-<div class="flex items-center justify-between mb-6">
-<h2 class="font-headline text-2xl font-bold">Enhancements</h2>
-<button class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-primary hover:text-primary-container transition-colors">
-<span class="material-symbols-outlined text-base">add_circle</span> Add Custom
-                        </button>
-</div>
-<div class="space-y-4" id="enhancements-list">
-<!-- Enhancement Card 1 -->
-<div class="p-4 bg-surface-container-high rounded-lg flex items-center justify-between group">
-<div class="flex items-center gap-4">
-<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shutter_speed</span>
-</div>
-<div>
-<p class="font-bold text-sm">Neural Sharpening</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Restores Edge Integrity</p>
-</div>
-</div>
-<div class="flex items-center gap-3">
-<label class="relative inline-flex items-center cursor-pointer" title="Auto-apply to generation">
-<input checked="" class="sr-only peer" type="checkbox" value=""/>
-<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-</label>
-<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors" title="Apply now">
-<span class="material-symbols-outlined text-xl">bolt</span>
-</button>
-<button class="p-2 hover:bg-on-surface-variant/10 rounded-full text-on-surface-variant transition-colors" title="Edit prompt settings">
-<span class="material-symbols-outlined text-xl">settings</span>
-</button>
-</div>
-</div>
-<!-- Enhancement Card 2 -->
-<div class="p-4 bg-surface-container-high rounded-lg flex items-center justify-between group">
-<div class="flex items-center gap-4">
-<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">palette</span>
-</div>
-<div>
-<p class="font-bold text-sm">Atmospheric Grading</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Editorial Color Palette</p>
-</div>
-</div>
-<div class="flex items-center gap-3">
-<label class="relative inline-flex items-center cursor-pointer" title="Auto-apply to generation">
-<input class="sr-only peer" type="checkbox" value=""/>
-<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-</label>
-<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors" title="Apply now">
-<span class="material-symbols-outlined text-xl">bolt</span>
-</button>
-<button class="p-2 hover:bg-on-surface-variant/10 rounded-full text-on-surface-variant transition-colors" title="Edit prompt settings">
-<span class="material-symbols-outlined text-xl">settings</span>
-</button>
-</div>
-</div>
-<!-- Enhancement Card 3 -->
-<div class="p-4 bg-surface-container-high rounded-lg flex items-center justify-between group">
-<div class="flex items-center gap-4">
-<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">noise_aware</span>
-</div>
-<div>
-<p class="font-bold text-sm">Texture Synthesis</p>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Intelligent Film Grain</p>
-</div>
-</div>
-<div class="flex items-center gap-3">
-<label class="relative inline-flex items-center cursor-pointer" title="Auto-apply to generation">
-<input class="sr-only peer" type="checkbox" value=""/>
-<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-</label>
-<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors" title="Apply now">
-<span class="material-symbols-outlined text-xl">bolt</span>
-</button>
-<button class="p-2 hover:bg-on-surface-variant/10 rounded-full text-on-surface-variant transition-colors" title="Edit prompt settings">
-<span class="material-symbols-outlined text-xl">settings</span>
-</button>
-</div>
-</div>
-<!-- New Slot Template (Visual) -->
-<div class="p-4 border-2 border-dashed border-outline-variant/20 rounded-lg flex items-center justify-center group hover:bg-surface-container-high/50 cursor-pointer transition-colors">
-<div class="flex flex-col items-center gap-1 py-1">
-<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">add</span>
-<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant group-hover:text-on-surface transition-colors">Define Custom Prompt Enhancement</p>
-</div>
-</div>
-</div>
-<!-- Main Action -->
-<button class="w-full mt-8 py-5 bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-xl rounded-full shadow-[0_0_20px_rgba(170,199,255,0.3)] hover:shadow-[0_0_30px_rgba(170,199,255,0.5)] active:scale-95 transition-all">
-                        GENERATE
-                    </button>
-<p class="text-center text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-4 font-bold">Using 2 Active Dynamic Enhancers</p>
-</section>
-<!-- Debug Section (Collapsible feel) -->
-<details class="bg-surface-container-low rounded-xl border border-outline-variant/10 group overflow-hidden">
-<summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-surface-container transition-colors">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-sm text-error">terminal</span>
-<h3 class="font-label text-xs uppercase tracking-widest font-bold">System Debug Logs</h3>
-</div>
-<span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
-</summary>
-<div class="p-6 border-t border-outline-variant/5 space-y-4">
-<div>
-<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-2 text-primary">Active Dynamic Prompts</p>
-<pre class="bg-surface-container-lowest p-4 rounded text-[10px] font-mono text-primary leading-relaxed overflow-x-auto">[
-  { "id": "sharpen_01", "name": "Neural Sharpening", "prompt": "enhance edges, restore micro-contrast, 8k details", "auto": true },
-  { "id": "grade_01", "name": "Atmospheric Grading", "prompt": "cinematic teal and orange, twilight haze, editorial film look", "auto": false }
-]</pre>
-</div>
-<div>
-<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Request Payload (Integrated)</p>
-<pre class="bg-surface-container-lowest p-4 rounded text-[10px] font-mono text-primary leading-relaxed overflow-x-auto">{
-  "model": "atelier-v4-neural",
-  "image": "data:image/png;base64,iVBORw0KG...",
-  "dynamic_enhancers": ["sharpen_01"],
-  "seed": 40292831,
-  "guidance": 12.5
-}</pre>
-</div>
-</div>
-</details>
-</div>
-</div>
 </main>
-<!-- BottomNavBar (Mobile Only) -->
-<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-8 pt-4 bg-[#131315]/60 backdrop-blur-xl z-50 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3">
-<span class="material-symbols-outlined" data-icon="photo_library">photo_library</span>
-</div>
-<div class="flex flex-col items-center justify-center bg-[#aac7ff] text-[#131315] rounded-full p-3 scale-110 shadow-[0_0_15px_rgba(170,199,255,0.4)]">
-<span class="material-symbols-outlined" data-icon="brush" style="font-variation-settings: 'FILL' 1;">brush</span>
-</div>
-<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3">
-<span class="material-symbols-outlined" data-icon="auto_fix_high">auto_fix_high</span>
-</div>
-<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-</div>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden bg-zinc-900/60 backdrop-blur-xl fixed bottom-0 left-0 w-full z-50 rounded-t-3xl flex justify-around items-center h-20 px-4 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+<button class="flex flex-col items-center justify-center text-zinc-500 px-5 py-2 hover:bg-zinc-800/40 transition-all active:scale-90">
+<span class="material-symbols-outlined mb-1" data-icon="photo_library">photo_library</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium">Gallery</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-blue-500/10 text-blue-200 rounded-2xl px-5 py-2 active:scale-90 transition-all duration-300">
+<span class="material-symbols-outlined mb-1" data-icon="auto_fix_high" style="font-variation-settings: 'FILL' 1;">auto_fix_high</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium text-blue-200">Editor</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-500 px-5 py-2 hover:bg-zinc-800/40 transition-all active:scale-90">
+<span class="material-symbols-outlined mb-1" data-icon="layers">layers</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium">Bulk</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-500 px-5 py-2 hover:bg-zinc-800/40 transition-all active:scale-90">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest font-medium">Settings</span>
+</button>
 </nav>
 </body></html>
