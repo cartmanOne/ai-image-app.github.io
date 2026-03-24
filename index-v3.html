@@ -243,6 +243,7 @@
 
     let currentImage = null;
     let db;
+    let availableImageModels = [];
 
     // --- INITIALIZATION ---
     async function init() {
@@ -627,14 +628,55 @@
             fill('modelVision', m => m.id.includes('vision') || m.id.includes('gpt-4') || m.id.includes('claude-3') || m.id.includes('gemini'), 'visionModel');
             fill('modelText', m => true, 'textModel');
             
-            const imgResp = await fetch('https://nano-gpt.com/api/v1/image-models', { headers: { 'Authorization': `Bearer ${config.apiKey}` }});
+            const imgResp = await fetch('https://nano-gpt.com/api/v1/image-models?detailed=true', { headers: { 'Authorization': `Bearer ${config.apiKey}` }});
             const imgData = await imgResp.json();
-            imgData.data.sort((a,b) => a.id.localeCompare(b.id));
+            availableImageModels = imgData.data || [];
+            availableImageModels.sort((a,b) => a.id.localeCompare(b.id));
             const imgEl = document.getElementById('modelImage');
-            imgEl.innerHTML = imgData.data.map(m => `<option value="${m.id}">${m.id}</option>`).join('');
+            imgEl.innerHTML = availableImageModels.map(m => `<option value="${m.id}">${m.id}</option>`).join('');
             if (config.imageModel) imgEl.value = config.imageModel;
-            imgEl.onchange = () => saveSetting('imageModel', imgEl.value);
+            
+            updateResolutions();
+            imgEl.onchange = () => {
+                saveSetting('imageModel', imgEl.value);
+                updateResolutions();
+            };
         } catch (e) { logDebug("Model load failed: " + e.message); }
+    }
+
+    function updateResolutions() {
+        const modelId = document.getElementById('modelImage').value;
+        const resSelect = document.getElementById('resolution');
+        const model = availableImageModels.find(m => m.id === modelId);
+        
+        const currentRes = resSelect.value || config.resolution;
+        let html = '';
+
+        if (model && model.supported_parameters && model.supported_parameters.resolutions) {
+            html = model.supported_parameters.resolutions.map(r => {
+                let label = r;
+                const [w, h] = r.split('x').map(Number);
+                if (w === h) label += ' (Square)';
+                else if (w < h) label += ' (Portrait)';
+                else if (w > h) label += ' (Landscape)';
+                return `<option value="${r}">${label}</option>`;
+            }).join('');
+        } else {
+            html = `
+                <option value="1024x1024">1024x1024 (Square)</option>
+                <option value="1024x1792">1024x1792 (Portrait)</option>
+                <option value="1792x1024">1792x1024 (Landscape)</option>
+            `;
+        }
+        
+        resSelect.innerHTML = html;
+        
+        if (resSelect.querySelector(`option[value="${currentRes}"]`)) {
+            resSelect.value = currentRes;
+        } else if (resSelect.options.length > 0) {
+            resSelect.value = resSelect.options[0].value;
+            saveSetting('resolution', resSelect.value);
+        }
     }
 
     function saveApiKey() {
