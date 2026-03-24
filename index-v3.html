@@ -44,8 +44,8 @@
                 
                 <div>
                     <label class="text-[10px] font-bold tracking-widest text-zinc-500 uppercase mb-4 block">Source Image</label>
-                    <div id="dropZone" onclick="document.getElementById('fileInput').click()" class="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all relative overflow-hidden">
-                        <img id="sourcePreview" class="absolute inset-0 w-full h-full object-cover hidden">
+                    <div id="dropZone" onclick="document.getElementById('fileInput').click()" class="h-64 w-full rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all relative overflow-hidden group">
+                        <img id="sourcePreview" class="absolute inset-0 w-full h-full object-contain bg-black/50 hidden">
                         <span class="material-symbols-outlined text-zinc-600 mb-2">add_a_photo</span>
                         <p class="text-[10px] text-zinc-500 font-medium">TAP TO UPLOAD</p>
                         <input type="file" id="fileInput" hidden accept="image/*" onchange="handleFile(event)">
@@ -55,7 +55,7 @@
                 <div>
                     <div class="flex justify-between items-center mb-4">
                         <label class="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">Enhancements</label>
-                        <button onclick="openEnhancerModal()" class="text-blue-400 text-[10px] font-bold hover:underline">+ ADD</button>
+                        <button onclick="openEnhancerModal()" class="text-blue-400 text-[10px] font-bold hover:text-blue-300 transition-colors">+ ADD</button>
                     </div>
                     <div id="enhancerList" class="space-y-2">
                         </div>
@@ -74,7 +74,7 @@
 
                 <div class="mt-auto pt-4 space-y-3">
                     <div class="flex items-center gap-3 px-2">
-                        <input type="checkbox" id="autoGenerate" class="rounded bg-zinc-900 border-white/10 text-blue-500">
+                        <input type="checkbox" id="autoGenerate" class="rounded bg-zinc-700 border-white/10 text-blue-500 focus:ring-offset-0 focus:ring-blue-500">
                         <label for="autoGenerate" class="text-[10px] text-zinc-400 font-bold uppercase">Auto-Generate</label>
                     </div>
                     <button id="mainActionBtn" onclick="runAnalyze()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-sm tracking-tight flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-blue-500/20">
@@ -275,6 +275,7 @@
                 </div>
                 <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onclick="runEnhanceSingle(${enh.id})" class="text-blue-400"><span class="material-symbols-outlined text-sm">play_arrow</span></button>
+                    <button onclick="openEnhancerModal(${enh.id})" class="text-zinc-400 hover:text-white"><span class="material-symbols-outlined text-sm">edit</span></button>
                     <button onclick="deleteEnh(${enh.id})" class="text-zinc-500 hover:text-red-400"><span class="material-symbols-outlined text-sm">delete</span></button>
                 </div>
             </div>
@@ -291,6 +292,16 @@
     let editingEnhId = null;
     function openEnhancerModal(id = null) {
         editingEnhId = id;
+        if (id) {
+            const enh = config.enhancements.find(e => e.id === id);
+            document.getElementById('editEnhName').value = enh.name;
+            document.getElementById('editEnhPrompt').value = enh.prompt;
+            document.getElementById('editEnhAuto').checked = enh.auto;
+        } else {
+            document.getElementById('editEnhName').value = '';
+            document.getElementById('editEnhPrompt').value = '';
+            document.getElementById('editEnhAuto').checked = false;
+        }
         document.getElementById('enhancerModal').classList.replace('hidden', 'flex');
     }
 
@@ -301,14 +312,28 @@
         const prompt = document.getElementById('editEnhPrompt').value;
         const auto = document.getElementById('editEnhAuto').checked;
         
-        config.enhancements.push({ id: Date.now(), name, prompt, auto, active: true });
+        if (editingEnhId) {
+            const idx = config.enhancements.findIndex(e => e.id === editingEnhId);
+            if (idx > -1) config.enhancements[idx] = { ...config.enhancements[idx], name, prompt, auto };
+        } else {
+            config.enhancements.push({ id: Date.now(), name, prompt, auto, active: true });
+        }
         renderEnhancements();
         closeEnhancerModal();
+    }
+    
+    function deleteEnh(id) {
+        config.enhancements = config.enhancements.filter(e => e.id !== id);
+        renderEnhancements();
     }
 
     // --- CORE API WORKFLOW ---
     async function runAnalyze() {
         if (!currentImage) return alert("Upload an image first.");
+        const btn = document.getElementById('mainActionBtn');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> ANALYZING...`;
         setLoading(true, "ANALYZING...");
         
         const payload = {
@@ -332,6 +357,8 @@
             
             if (document.getElementById('autoGenerate').checked) runGenerate();
         } catch (e) { logDebug("Error during analysis: " + e.message); }
+        btn.disabled = false;
+        btn.innerHTML = originalText;
         setLoading(false);
     }
 
@@ -355,6 +382,12 @@
     }
 
     async function runGenerate() {
+        const btn = document.getElementById('genBtn');
+        const originalText = btn.innerHTML;
+        if(btn.disabled) return;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> GENERATING...`;
+        
         setLoading(true, "SYNTHESIZING...");
         const startTime = Date.now();
         
@@ -377,6 +410,8 @@
             
             saveToVault(fullSrc, duration);
         } catch (e) { logDebug("Error during generation: " + e.message); }
+        btn.disabled = false;
+        btn.innerHTML = originalText;
         setLoading(false);
     }
 
@@ -389,7 +424,11 @@
             body: JSON.stringify(body)
         });
         const data = await resp.json();
-        logDebug(`RESPONSE: ${JSON.stringify(data).substring(0, 500)}...`);
+        const logData = { ...data };
+        if (logData.data && Array.isArray(logData.data)) {
+            logData.data = logData.data.map(d => ({ ...d, b64_json: d.b64_json ? '<BASE64_HIDDEN>' : undefined }));
+        }
+        logDebug(`RESPONSE: ${JSON.stringify(logData).substring(0, 500)}...`);
         return data;
     }
 
@@ -400,6 +439,21 @@
             document.getElementById('sourcePreview').src = currentImage;
             document.getElementById('sourcePreview').classList.remove('hidden');
             document.getElementById('view-original').src = currentImage;
+            
+            // Auto-detect resolution
+            const img = new Image();
+            img.onload = () => {
+                const ratio = img.width / img.height;
+                let res = '1024x1024';
+                if (ratio < 0.8) res = '1024x1792';
+                if (ratio > 1.2) res = '1792x1024';
+                const sel = document.getElementById('resolution');
+                if (sel.querySelector(`option[value="${res}"]`)) {
+                    sel.value = res;
+                    saveSetting('resolution', res);
+                }
+            };
+            img.src = currentImage;
         };
         reader.readAsDataURL(e.target.files[0]);
     }
@@ -427,7 +481,7 @@
                 div.className = "aspect-square rounded-2xl overflow-hidden bg-zinc-900 border border-white/5 relative group";
                 div.innerHTML = `
                     <img src="${item.src}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2 backdrop-blur-sm">
                         <span class="text-[8px] font-bold text-zinc-400 mb-2">${item.time}s</span>
                         <button onclick="downloadImg('${item.src}')" class="text-white bg-blue-600 px-3 py-1 rounded-full text-[9px] font-bold">SAVE</button>
                     </div>
@@ -455,17 +509,20 @@
         try {
             const resp = await fetch('https://nano-gpt.com/api/v1/models', { headers: { 'Authorization': `Bearer ${config.apiKey}` }});
             const { data } = await resp.json();
+            data.sort((a,b) => a.id.localeCompare(b.id));
+            
             const fill = (id, filter, key) => {
                 const el = document.getElementById(id);
                 el.innerHTML = data.filter(filter).map(m => `<option value="${m.id}">${m.id}</option>`).join('');
                 if (config[key]) el.value = config[key];
                 el.onchange = () => saveSetting(key, el.value);
             };
-            fill('modelVision', m => m.id.includes('vision') || m.id.includes('gpt-4'), 'visionModel');
+            fill('modelVision', m => m.id.includes('vision') || m.id.includes('gpt-4') || m.id.includes('claude-3') || m.id.includes('gemini'), 'visionModel');
             fill('modelText', m => true, 'textModel');
             
             const imgResp = await fetch('https://nano-gpt.com/api/v1/image-models', { headers: { 'Authorization': `Bearer ${config.apiKey}` }});
             const imgData = await imgResp.json();
+            imgData.data.sort((a,b) => a.id.localeCompare(b.id));
             const imgEl = document.getElementById('modelImage');
             imgEl.innerHTML = imgData.data.map(m => `<option value="${m.id}">${m.id}</option>`).join('');
             if (config.imageModel) imgEl.value = config.imageModel;
