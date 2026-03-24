@@ -91,67 +91,6 @@
             background: #353437;
             border-radius: 10px;
         }
-        .comparison-slider {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            border-radius: 0.75rem;
-        }
-        .comparison-slider .after-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            clip-path: inset(0 0 0 50%);
-            transition: clip-path 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .slider-handle {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            width: 2px;
-            background: #aac7ff;
-            cursor: ew-resize;
-            z-index: 20;
-            transform: translateX(-50%);
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .slider-handle::after {
-            content: "UNFOLD_MORE";
-            font-family: 'Material Symbols Outlined';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(90deg);
-            width: 32px;
-            height: 32px;
-            background: #aac7ff;
-            color: #003064;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            box-shadow: 0 0 15px rgba(170,199,255,0.4);
-        }
-        .single-view .after-image {
-            clip-path: inset(0 0 0 0%) !important;
-        }
-        .single-view .slider-handle {
-            display: none !important;
-        }
-        .single-view .before-image-label {
-            display: none !important;
-        }
-        
-        details summary::-webkit-details-marker {
-            display: none;
-        }
-    </style>
-<style>
         body {
             min-height: max(884px, 100dvh);
         }
@@ -166,8 +105,9 @@
 </div>
 <nav class="hidden md:flex items-center gap-8">
 <a class="text-[#aac7ff] scale-95 transition-transform font-['Inter'] text-sm font-medium tracking-wide" href="#">Editor</a>
-<a class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors font-['Inter'] text-sm font-medium tracking-wide" onclick="location.href='{{DATA:SCREEN:SCREEN_8}}'">Gallery</a>
-<button class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors" onclick="location.href='{{DATA:SCREEN:SCREEN_9}}'">
+<a class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors font-['Inter'] text-sm font-medium tracking-wide" href="#">Bulk</a>
+<a class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors font-['Inter'] text-sm font-medium tracking-wide" href="#">Gallery</a>
+<button class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors">
 <span class="material-symbols-outlined">settings</span>
 </button>
 </nav>
@@ -179,34 +119,18 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 <!-- Left Column: Canvas & Analysis -->
 <div class="lg:col-span-7 space-y-8">
-<!-- Comparison View Section -->
-<section class="space-y-4">
-<div class="flex items-center justify-between mb-2">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-sm">compare</span>
-<h2 class="font-label text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Active Workspace</h2>
-</div>
-<div class="flex bg-surface-container rounded-full p-1" id="view-toggle">
-<button class="px-3 py-1 text-[10px] font-bold uppercase rounded-full bg-primary text-on-primary transition-all" id="toggle-split">Split</button>
-<button class="px-3 py-1 text-[10px] font-bold uppercase rounded-full text-on-surface-variant hover:text-on-surface transition-all" id="toggle-single">Single</button>
-</div>
-</div>
-<!-- Upload Area / Comparison Canvas -->
-<div class="relative group aspect-square lg:aspect-[4/3] rounded-xl overflow-hidden bg-surface-container-lowest border-2 border-outline-variant/10 transition-all" id="workspace-canvas">
-<div class="comparison-slider">
-<!-- Before Image -->
-<div class="absolute inset-0">
-<img alt="Original version" class="w-full h-full object-cover opacity-40 grayscale-[0.5]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqF2djpP2C3ntNyMj7FvXPEecZfNiVekyzPXJ0W7qAFRU0QKq7-pq1807z01_C-Dw9jnjY88_s0UwSyUZdI1YlYlMEqnwgVa2b2TVthRtc3te2zL2Q8Xa-71Q8N_7FvdOfFQOhYokMvoIFYJTSjTp4M0Fc4VrffvnDPQ1g9qFSssKb54sFVc9up7nngIP3LCLF-C8k7DqIuAiv-IusM1yQd8FjTWRk5Nry7C9VCa01JARP5OIaIJdqxCi_67e-IdxW4w8cTwOt2b1K"/>
-<div class="before-image-label absolute bottom-4 left-4 bg-surface-container-lowest/60 backdrop-blur-md px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-on-surface/70 border border-outline-variant/20">Original</div>
-</div>
-<!-- After Image (Clipped) -->
-<div class="after-image">
-<img alt="Generated version" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqF2djpP2C3ntNyMj7FvXPEecZfNiVekyzPXJ0W7qAFRU0QKq7-pq1807z01_C-Dw9jnjY88_s0UwSyUZdI1YlYlMEqnwgVa2b2TVthRtc3te2zL2Q8Xa-71Q8N_7FvdOfFQOhYokMvoIFYJTSjTp4M0Fc4VrffvnDPQ1g9qFSssKb54sFVc9up7nngIP3LCLF-C8k7DqIuAiv-IusM1yQd8FjTWRk5Nry7C9VCa01JARP5OIaIJdqxCi_67e-IdxW4w8cTwOt2b1K"/>
-<div class="absolute bottom-4 right-4 bg-primary/20 backdrop-blur-md px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/30">Refined</div>
-</div>
-<!-- Slider Handle -->
-<div class="slider-handle"></div>
-</div>
+<!-- Upload Area / Preview Canvas -->
+<section class="relative group aspect-square lg:aspect-[4/3] rounded-xl overflow-hidden bg-surface-container-lowest border-2 border-dashed border-outline-variant/30 flex items-center justify-center transition-all hover:border-primary/50">
+<img alt="Abstract digital art with fluid neon shapes" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqF2djpP2C3ntNyMj7FvXPEecZfNiVekyzPXJ0W7qAFRU0QKq7-pq1807z01_C-Dw9jnjY88_s0UwSyUZdI1YlYlMEqnwgVa2b2TVthRtc3te2zL2Q8Xa-71Q8N_7FvdOfFQOhYokMvoIFYJTSjTp4M0Fc4VrffvnDPQ1g9qFSssKb54sFVc9up7nngIP3LCLF-C8k7DqIuAiv-IusM1yQd8FjTWRk5Nry7C9VCa01JARP5OIaIJdqxCi_67e-IdxW4w8cTwOt2b1K"/>
+<div class="relative z-10 flex flex-col items-center text-center p-8 bg-surface-container-lowest/40 backdrop-blur-sm rounded-xl">
+<span class="material-symbols-outlined text-5xl text-primary mb-4" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+<h3 class="font-headline text-2xl font-bold mb-2">Upload images</h3>
+<p class="text-on-surface-variant text-sm max-w-xs">Upload a raw vision to refine it through the Atelier's neural lens. <span class="block mt-1 font-bold text-primary/80">Multi-select enabled</span></p>
+<button class="mt-6 px-8 py-3 bg-primary text-on-primary font-bold rounded-full hover:scale-105 transition-transform">Browse Files</button>
+<button class="mt-4 px-6 py-2 border border-outline-variant/50 text-on-surface text-xs font-bold rounded-full hover:bg-surface-container-highest transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">layers</span>
+                            Switch to Bulk Mode
+                        </button>
 </div>
 </section>
 <!-- AI Analysis -->
@@ -216,8 +140,8 @@
 <h2 class="font-label text-xs uppercase tracking-[0.2em] font-bold text-on-surface-variant">Neural Perception Analysis</h2>
 </div>
 <p class="font-headline text-xl leading-relaxed">
-                    "The subject exhibits <span class="text-primary">high-contrast luminosity</span> with an emphasis on fluid organic structures. Ambient lighting suggests a <span class="text-primary-container">twilight spectrum</span> with subtle chromatic aberration in the peripheral fields. Composition follows a <span class="text-primary">dynamic spiral</span> arrangement."
-                </p>
+                        "The subject exhibits <span class="text-primary">high-contrast luminosity</span> with an emphasis on fluid organic structures. Ambient lighting suggests a <span class="text-primary-container">twilight spectrum</span> with subtle chromatic aberration in the peripheral fields. Composition follows a <span class="text-primary">dynamic spiral</span> arrangement."
+                    </p>
 <div class="flex flex-wrap gap-2 pt-2">
 <span class="px-3 py-1 bg-surface-container-highest text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">Cyber-Noir</span>
 <span class="px-3 py-1 bg-surface-container-highest text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">Organic Flow</span>
@@ -229,8 +153,13 @@
 <div class="lg:col-span-5 space-y-8 lg:sticky lg:top-24">
 <!-- Enhancements -->
 <section class="bg-surface-container rounded-xl p-8 border border-outline-variant/10 shadow-xl">
-<h2 class="font-headline text-2xl font-bold mb-6">Enhancements</h2>
-<div class="space-y-4">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline text-2xl font-bold">Enhancements</h2>
+<button class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-primary hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined text-base">add_circle</span> Add Custom
+                        </button>
+</div>
+<div class="space-y-4" id="enhancements-list">
 <!-- Enhancement Card 1 -->
 <div class="p-4 bg-surface-container-high rounded-lg flex items-center justify-between group">
 <div class="flex items-center gap-4">
@@ -242,13 +171,16 @@
 <p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Restores Edge Integrity</p>
 </div>
 </div>
-<div class="flex items-center gap-4">
-<label class="relative inline-flex items-center cursor-pointer">
+<div class="flex items-center gap-3">
+<label class="relative inline-flex items-center cursor-pointer" title="Auto-apply to generation">
 <input checked="" class="sr-only peer" type="checkbox" value=""/>
 <div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
 </label>
-<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors">
-<span class="material-symbols-outlined">bolt</span>
+<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors" title="Apply now">
+<span class="material-symbols-outlined text-xl">bolt</span>
+</button>
+<button class="p-2 hover:bg-on-surface-variant/10 rounded-full text-on-surface-variant transition-colors" title="Edit prompt settings">
+<span class="material-symbols-outlined text-xl">settings</span>
 </button>
 </div>
 </div>
@@ -263,13 +195,16 @@
 <p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Editorial Color Palette</p>
 </div>
 </div>
-<div class="flex items-center gap-4">
-<label class="relative inline-flex items-center cursor-pointer">
+<div class="flex items-center gap-3">
+<label class="relative inline-flex items-center cursor-pointer" title="Auto-apply to generation">
 <input class="sr-only peer" type="checkbox" value=""/>
 <div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
 </label>
-<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors">
-<span class="material-symbols-outlined">bolt</span>
+<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors" title="Apply now">
+<span class="material-symbols-outlined text-xl">bolt</span>
+</button>
+<button class="p-2 hover:bg-on-surface-variant/10 rounded-full text-on-surface-variant transition-colors" title="Edit prompt settings">
+<span class="material-symbols-outlined text-xl">settings</span>
 </button>
 </div>
 </div>
@@ -284,26 +219,36 @@
 <p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Intelligent Film Grain</p>
 </div>
 </div>
-<div class="flex items-center gap-4">
-<label class="relative inline-flex items-center cursor-pointer">
+<div class="flex items-center gap-3">
+<label class="relative inline-flex items-center cursor-pointer" title="Auto-apply to generation">
 <input class="sr-only peer" type="checkbox" value=""/>
 <div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
 </label>
-<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors">
-<span class="material-symbols-outlined">bolt</span>
+<button class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors" title="Apply now">
+<span class="material-symbols-outlined text-xl">bolt</span>
 </button>
+<button class="p-2 hover:bg-on-surface-variant/10 rounded-full text-on-surface-variant transition-colors" title="Edit prompt settings">
+<span class="material-symbols-outlined text-xl">settings</span>
+</button>
+</div>
+</div>
+<!-- New Slot Template (Visual) -->
+<div class="p-4 border-2 border-dashed border-outline-variant/20 rounded-lg flex items-center justify-center group hover:bg-surface-container-high/50 cursor-pointer transition-colors">
+<div class="flex flex-col items-center gap-1 py-1">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">add</span>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant group-hover:text-on-surface transition-colors">Define Custom Prompt Enhancement</p>
 </div>
 </div>
 </div>
 <!-- Main Action -->
-<button class="w-full mt-8 py-5 bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-xl rounded-full shadow-[0_0_20px_rgba(170,199,255,0.3)] hover:shadow-[0_0_30px_rgba(170,199,255,0.5)] active:scale-95 transition-all flex items-center justify-center gap-3" id="generate-btn">
-<span id="btn-text">GENERATE</span>
-<span class="hidden material-symbols-outlined animate-spin" id="btn-loader">progress_activity</span>
-</button>
+<button class="w-full mt-8 py-5 bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-xl rounded-full shadow-[0_0_20px_rgba(170,199,255,0.3)] hover:shadow-[0_0_30px_rgba(170,199,255,0.5)] active:scale-95 transition-all">
+                        GENERATE
+                    </button>
+<p class="text-center text-[10px] text-on-surface-variant uppercase tracking-[0.2em] mt-4 font-bold">Using 2 Active Dynamic Enhancers</p>
 </section>
-<!-- Debug Section -->
-<details class="bg-surface-container-low rounded-xl border border-outline-variant/10 group overflow-hidden" id="debug-accordion">
-<summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-surface-container transition-colors list-none">
+<!-- Debug Section (Collapsible feel) -->
+<details class="bg-surface-container-low rounded-xl border border-outline-variant/10 group overflow-hidden">
+<summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-surface-container transition-colors">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-sm text-error">terminal</span>
 <h3 class="font-label text-xs uppercase tracking-widest font-bold">System Debug Logs</h3>
@@ -312,22 +257,20 @@
 </summary>
 <div class="p-6 border-t border-outline-variant/5 space-y-4">
 <div>
-<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Request Payload</p>
-<pre class="bg-surface-container-lowest p-4 rounded text-[10px] font-mono text-primary leading-relaxed overflow-x-auto">{
-  "model": "atelier-v4-neural",
-  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
-  "enhancements": ["sharpen", "denoise"],
-  "seed": 40292831,
-  "guidance": 12.5
-}</pre>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-2 text-primary">Active Dynamic Prompts</p>
+<pre class="bg-surface-container-lowest p-4 rounded text-[10px] font-mono text-primary leading-relaxed overflow-x-auto">[
+  { "id": "sharpen_01", "name": "Neural Sharpening", "prompt": "enhance edges, restore micro-contrast, 8k details", "auto": true },
+  { "id": "grade_01", "name": "Atmospheric Grading", "prompt": "cinematic teal and orange, twilight haze, editorial film look", "auto": false }
+]</pre>
 </div>
 <div>
-<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Inference Response</p>
-<pre class="bg-surface-container-lowest p-4 rounded text-[10px] font-mono text-on-surface-variant leading-relaxed overflow-x-auto">{
-  "status": "success",
-  "inference_time": "1.24s",
-  "output": "data:image/png;base64,mS2p8X9vL0k2...",
-  "confidence": 0.9882
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Request Payload (Integrated)</p>
+<pre class="bg-surface-container-lowest p-4 rounded text-[10px] font-mono text-primary leading-relaxed overflow-x-auto">{
+  "model": "atelier-v4-neural",
+  "image": "data:image/png;base64,iVBORw0KG...",
+  "dynamic_enhancers": ["sharpen_01"],
+  "seed": 40292831,
+  "guidance": 12.5
 }</pre>
 </div>
 </div>
@@ -336,101 +279,18 @@
 </div>
 </main>
 <!-- BottomNavBar (Mobile Only) -->
-<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-8 pt-4 bg-[#131315]/60 backdrop-blur-xl z-50 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3 cursor-pointer hover:text-primary transition-colors" onclick="location.href='{{DATA:SCREEN:SCREEN_8}}'">
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-8 pt-4 bg-[#131315]/60 backdrop-blur-xl z-50 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3">
 <span class="material-symbols-outlined" data-icon="photo_library">photo_library</span>
 </div>
-<div class="flex flex-col items-center justify-center bg-[#aac7ff] text-[#131315] rounded-full p-3 scale-110 shadow-[0_0_15px_rgba(170,199,255,0.4)] cursor-pointer">
+<div class="flex flex-col items-center justify-center bg-[#aac7ff] text-[#131315] rounded-full p-3 scale-110 shadow-[0_0_15px_rgba(170,199,255,0.4)]">
 <span class="material-symbols-outlined" data-icon="brush" style="font-variation-settings: 'FILL' 1;">brush</span>
 </div>
-<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3 cursor-pointer hover:text-primary transition-colors" onclick="location.href='{{DATA:SCREEN:SCREEN_2}}'">
+<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3">
 <span class="material-symbols-outlined" data-icon="auto_fix_high">auto_fix_high</span>
 </div>
-<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3 cursor-pointer hover:text-primary transition-colors" onclick="location.href='{{DATA:SCREEN:SCREEN_9}}'">
+<div class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3">
 <span class="material-symbols-outlined" data-icon="settings">settings</span>
 </div>
 </nav>
-<script>
-    // Slider Logic
-    const slider = document.querySelector('.comparison-slider');
-    const afterImage = document.querySelector('.after-image');
-    const handle = document.querySelector('.slider-handle');
-    const workspaceCanvas = document.getElementById('workspace-canvas');
-
-    if (slider) {
-        const updateSlider = (percent) => {
-            if (!workspaceCanvas.classList.contains('single-view')) {
-                afterImage.style.clipPath = `inset(0 0 0 ${percent}%)`;
-                handle.style.left = `${percent}%`;
-            }
-        };
-
-        slider.addEventListener('mousemove', (e) => {
-            const rect = slider.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const percent = (x / rect.width) * 100;
-            if (percent >= 0 && percent <= 100) updateSlider(percent);
-        });
-
-        slider.addEventListener('touchmove', (e) => {
-            const rect = slider.getBoundingClientRect();
-            const touch = e.touches[0];
-            const x = touch.clientX - rect.left;
-            const percent = (x / rect.width) * 100;
-            if (percent >= 0 && percent <= 100) updateSlider(percent);
-        });
-    }
-
-    // Split/Single Toggle Logic
-    const toggleSplit = document.getElementById('toggle-split');
-    const toggleSingle = document.getElementById('toggle-single');
-
-    toggleSplit.addEventListener('click', () => {
-        workspaceCanvas.classList.remove('single-view');
-        toggleSplit.classList.add('bg-primary', 'text-on-primary');
-        toggleSplit.classList.remove('text-on-surface-variant');
-        toggleSingle.classList.remove('bg-primary', 'text-on-primary');
-        toggleSingle.classList.add('text-on-surface-variant');
-        // Reset to middle
-        afterImage.style.clipPath = `inset(0 0 0 50%)`;
-        handle.style.left = `50%`;
-    });
-
-    toggleSingle.addEventListener('click', () => {
-        workspaceCanvas.classList.add('single-view');
-        toggleSingle.classList.add('bg-primary', 'text-on-primary');
-        toggleSingle.classList.remove('text-on-surface-variant');
-        toggleSplit.classList.remove('bg-primary', 'text-on-primary');
-        toggleSplit.classList.add('text-on-surface-variant');
-    });
-
-    // Generate Button Interaction
-    const generateBtn = document.getElementById('generate-btn');
-    const btnText = document.getElementById('btn-text');
-    const btnLoader = document.getElementById('btn-loader');
-
-    generateBtn.addEventListener('click', () => {
-        btnText.textContent = "PROCESSING...";
-        btnLoader.classList.remove('hidden');
-        generateBtn.classList.add('opacity-80', 'pointer-events-none');
-        
-        setTimeout(() => {
-            btnText.textContent = "GENERATE";
-            btnLoader.classList.add('hidden');
-            generateBtn.classList.remove('opacity-80', 'pointer-events-none');
-        }, 2500);
-    });
-
-    // Enhancement Toggles Feedback (Native Browser Handles State, CSS provides visual)
-    document.querySelectorAll('input[type="checkbox"]').forEach(toggle => {
-        toggle.addEventListener('change', (e) => {
-            const card = e.target.closest('.bg-surface-container-high');
-            if (e.target.checked) {
-                card.classList.add('ring-1', 'ring-primary/30');
-            } else {
-                card.classList.remove('ring-1', 'ring-primary/30');
-            }
-        });
-    });
-</script>
 </body></html>
