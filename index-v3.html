@@ -67,8 +67,14 @@
                         <textarea id="basePrompt" class="w-full h-24 rounded-xl p-3 text-xs leading-relaxed resize-none" placeholder="AI Analysis will appear here..."></textarea>
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold tracking-widest text-blue-400 uppercase mb-2 block">Enhanced Prompt</label>
-                        <textarea id="finalPrompt" class="w-full h-32 rounded-xl p-3 text-xs leading-relaxed border-blue-500/20 bg-blue-500/5" placeholder="Final generation instructions..."></textarea>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-[10px] font-bold tracking-widest text-blue-400 uppercase block">Enhanced Prompt</label>
+                            <button id="diffBtn" onclick="toggleDiff()" class="text-[10px] font-bold text-zinc-500 hover:text-blue-400 transition-colors">SHOW DIFF</button>
+                        </div>
+                        <div class="relative">
+                            <textarea id="finalPrompt" class="w-full h-32 rounded-xl p-3 text-xs leading-relaxed border-blue-500/20 bg-blue-500/5 transition-opacity" placeholder="Final generation instructions..."></textarea>
+                            <div id="diffOutput" class="absolute inset-0 w-full h-32 rounded-xl p-3 text-xs leading-relaxed border border-blue-500/20 bg-zinc-900 overflow-y-auto whitespace-pre-wrap hidden"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -562,6 +568,48 @@
     }
 
     function toggleDebug() { document.getElementById('debugDrawer').classList.toggle('hidden'); }
+
+    // --- DIFF UTILS ---
+    function toggleDiff() {
+        const diffView = document.getElementById('diffOutput');
+        const textArea = document.getElementById('finalPrompt');
+        const btn = document.getElementById('diffBtn');
+        
+        if (diffView.classList.contains('hidden')) {
+            diffView.innerHTML = computeDiffHtml(document.getElementById('basePrompt').value, textArea.value);
+            diffView.classList.remove('hidden');
+            textArea.classList.add('opacity-0');
+            btn.innerText = "EDIT PROMPT";
+            btn.classList.add('text-blue-400');
+        } else {
+            diffView.classList.add('hidden');
+            textArea.classList.remove('opacity-0');
+            btn.innerText = "SHOW DIFF";
+            btn.classList.remove('text-blue-400');
+        }
+    }
+
+    function computeDiffHtml(oldText, newText) {
+        if (!oldText) return newText;
+        const os = oldText.split(/\s+/);
+        const ns = newText.split(/\s+/);
+        let html = '', o = 0, n = 0;
+        while (n < ns.length) {
+            if (o < os.length && ns[n] === os[o]) {
+                html += `<span class="text-zinc-500">${ns[n]} </span>`; o++; n++;
+            } else {
+                let match = -1;
+                for (let k = 1; k <= 15; k++) if (o + k < os.length && os[o + k] === ns[n]) { match = o + k; break; }
+                if (match !== -1) {
+                    for (let k = o; k < match; k++) html += `<span class="text-red-500/50 line-through text-[10px] mr-1">${os[k]}</span>`;
+                    o = match;
+                } else {
+                    html += `<span class="text-green-400 font-bold bg-green-500/10 rounded px-1">${ns[n]}</span> `; n++;
+                }
+            }
+        }
+        return html;
+    }
 
     // --- CONFIG MGMT ---
     async function fetchModels() {
