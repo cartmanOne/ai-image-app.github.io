@@ -95,6 +95,22 @@
             </aside>
 
             <div class="flex-1 bg-black relative overflow-hidden">
+                <div class="absolute top-6 left-1/2 -translate-x-1/2 z-30">
+                    <button onclick="toggleCompare()" class="glass px-4 py-2 rounded-full border border-white/10 flex items-center gap-2 hover:bg-white/10 transition-colors shadow-xl">
+                        <span class="material-symbols-outlined text-xs text-zinc-400">compare</span>
+                        <span id="cmpBtnText" class="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">COMPARE</span>
+                    </button>
+                </div>
+
+                <div id="compareView" class="absolute inset-0 hidden bg-black z-20">
+                    <img id="cmp-before" class="absolute inset-0 w-full h-full object-contain">
+                    <img id="cmp-after" class="absolute inset-0 w-full h-full object-contain">
+                    <div id="cmp-line" class="absolute top-0 bottom-0 w-0.5 bg-white cursor-ew-resize z-20 pointer-events-none shadow-[0_0_20px_rgba(0,0,0,0.5)]" style="left: 50%">
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined text-black text-sm">code</span></div>
+                    </div>
+                    <input type="range" min="0" max="100" value="50" class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30" oninput="updateCompare(this.value)">
+                </div>
+
                 <div id="splitContainer" class="w-full h-full flex flex-col md:flex-row">
                     <div class="flex-1 relative border-r border-white/5">
                         <img id="view-original" class="w-full h-full object-contain opacity-40">
@@ -569,6 +585,33 @@
     }
 
     function toggleDebug() { document.getElementById('debugDrawer').classList.toggle('hidden'); }
+
+    // --- COMPARE UTILS ---
+    function toggleCompare() {
+        const view = document.getElementById('compareView');
+        const split = document.getElementById('splitContainer');
+        const btn = document.getElementById('cmpBtnText');
+        
+        if (view.classList.contains('hidden')) {
+            if (!currentImage) return alert("No image to compare");
+            document.getElementById('cmp-before').src = currentImage;
+            document.getElementById('cmp-after').src = document.getElementById('view-result').src || currentImage;
+            view.classList.remove('hidden');
+            split.classList.add('opacity-0');
+            btn.innerText = "EXIT COMPARE";
+            document.querySelector('#compareView input').value = 50;
+            updateCompare(50);
+        } else {
+            view.classList.add('hidden');
+            split.classList.remove('opacity-0');
+            btn.innerText = "COMPARE";
+        }
+    }
+
+    function updateCompare(val) {
+        document.getElementById('cmp-line').style.left = val + '%';
+        document.getElementById('cmp-after').style.clipPath = `inset(0 0 0 ${val}%)`;
+    }
 
     // --- DIFF UTILS ---
     function toggleDiff() {
