@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed": "#e4e2e4",
+              "on-surface-variant": "#c0c6d6",
+              "tertiary-fixed": "#e2e2e2",
+              "surface-variant": "#353437",
+              "on-primary-fixed": "#001b3e",
+              "on-tertiary": "#2f3131",
+              "surface-container-high": "#2a2a2c",
+              "surface-container-lowest": "#0e0e10",
+              "on-tertiary-container": "#282a2a",
+              "on-primary-container": "#002957",
+              "on-secondary-fixed-variant": "#474649",
+              "on-secondary-fixed": "#1b1b1d",
+              "on-error-container": "#ffdad6",
+              "error": "#ffb4ab",
+              "surface-tint": "#aac7ff",
+              "tertiary-fixed-dim": "#c6c6c7",
+              "inverse-on-surface": "#303032",
+              "secondary-container": "#474649",
+              "surface-bright": "#39393b",
+              "on-surface": "#e4e2e4",
+              "primary": "#aac7ff",
+              "outline": "#8b91a0",
+              "surface-container": "#1f1f21",
+              "inverse-primary": "#005db8",
+              "on-primary-fixed-variant": "#00468d",
+              "outline-variant": "#414754",
+              "surface-container-highest": "#353437",
+              "primary-fixed": "#d6e3ff",
+              "primary-fixed-dim": "#aac7ff",
+              "on-tertiary-fixed-variant": "#454747",
+              "surface-container-low": "#1b1b1d",
+              "error-container": "#93000a",
+              "on-secondary": "#303032",
+              "secondary-fixed-dim": "#c8c6c8",
+              "surface-dim": "#131315",
+              "on-tertiary-fixed": "#1a1c1c",
+              "tertiary": "#c6c6c7",
+              "on-background": "#e4e2e4",
+              "background": "#131315",
+              "surface": "#131315",
+              "inverse-surface": "#e4e2e4",
+              "primary-container": "#3e90ff",
+              "on-secondary-container": "#b6b4b7",
+              "secondary": "#c8c6c8",
+              "on-primary": "#003064",
+              "tertiary-container": "#909191",
+              "on-error": "#690005"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #131315;
+            color: #e4e2e4;
+        }
+        .headline-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background min-h-screen text-on-surface">
+<!-- TopAppBar -->
+<header class="bg-[#131315]/60 backdrop-blur-xl docked full-width top-0 sticky z-50 flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="text-[#e4e2e4]/70 hover:text-[#aac7ff] transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="font-label text-sm font-medium tracking-wide">BACK TO EDITOR</span>
+</button>
+</div>
+<div class="text-[#aac7ff] font-['Space_Grotesk'] font-bold text-lg uppercase tracking-widest">
+            The Synthetic Atelier
+        </div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#aac7ff] scale-95 transition-transform">settings</span>
+</div>
+</header>
+<main class="max-w-5xl mx-auto px-6 py-12 pb-32">
+<div class="mb-12">
+<h1 class="headline-font text-4xl font-bold text-primary tracking-tight mb-2">Settings</h1>
+<p class="text-on-surface-variant body-md max-w-2xl">Configure your studio’s neural pathways. Authenticate your API credentials to unlock advanced vision and synthesis models.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Left Column: API & Models -->
+<div class="md:col-span-7 flex flex-col gap-8">
+<!-- API Section -->
+<section class="bg-surface-container rounded-xl p-8 transition-all">
+<h2 class="headline-font text-xl font-semibold mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">key</span>
+                        Authentication
+                    </h2>
+<div class="flex flex-col gap-4">
+<label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">NanoGPT API Key</label>
+<div class="flex gap-3">
+<input class="flex-grow bg-surface-container-high border-none rounded-xl px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary/20 body-md outline-none transition-all placeholder:text-on-surface-variant/30" placeholder="sk-••••••••••••••••••••••••" type="password"/>
+<button class="bg-primary text-on-primary font-bold px-8 rounded-full hover:opacity-90 active:scale-95 transition-all text-sm uppercase tracking-wider">Save</button>
+</div>
+<p class="text-[10px] text-on-surface-variant/50 leading-relaxed">Your key is encrypted locally. We never store credentials on our synthetic servers.</p>
+</div>
+</section>
+<!-- Model Configuration -->
+<section class="bg-surface-container rounded-xl p-8">
+<h2 class="headline-font text-xl font-semibold mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">psychology</span>
+                        Model Selection
+                    </h2>
+<div class="grid grid-cols-1 gap-6">
+<!-- Vision Model -->
+<div class="space-y-2">
+<label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Vision Model</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 appearance-none text-on-surface focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer body-md">
+<option>GPT-4o (Vision)</option>
+<option>Claude 3.5 Sonnet</option>
+<option>Gemini 1.5 Pro</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<!-- Text Model -->
+<div class="space-y-2">
+<label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Text Model</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 appearance-none text-on-surface focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer body-md">
+<option>GPT-4 Turbo</option>
+<option>Llama 3 70B</option>
+<option>Mistral Large</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<!-- Image Model -->
+<div class="space-y-2">
+<label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Image Model</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none rounded-xl px-4 py-3 appearance-none text-on-surface focus:ring-2 focus:ring-primary/20 outline-none cursor-pointer body-md">
+<option>DALL-E 3</option>
+<option>Stable Diffusion XL</option>
+<option>Midjourney v6 API</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Canvas & Prompts -->
+<div class="md:col-span-5 flex flex-col gap-8">
+<!-- Resolution Picker -->
+<section class="bg-surface-container rounded-xl p-8">
+<h2 class="headline-font text-xl font-semibold mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">aspect_ratio</span>
+                        Canvas Resolution
+                    </h2>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex flex-col items-center justify-center p-4 bg-primary text-on-primary rounded-xl transition-all shadow-[0_0_15px_rgba(170,199,255,0.2)]">
+<span class="headline-font font-bold">1024 × 1024</span>
+<span class="text-[10px] opacity-70 tracking-widest uppercase mt-1">Square</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-high text-on-surface-variant hover:text-primary rounded-xl transition-all">
+<span class="headline-font font-bold">1024 × 1792</span>
+<span class="text-[10px] opacity-70 tracking-widest uppercase mt-1">Portrait</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-high text-on-surface-variant hover:text-primary rounded-xl transition-all">
+<span class="headline-font font-bold">1792 × 1024</span>
+<span class="text-[10px] opacity-70 tracking-widest uppercase mt-1">Landscape</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 bg-surface-container-high text-on-surface-variant hover:text-primary rounded-xl transition-all">
+<span class="material-symbols-outlined">settings_overscan</span>
+<span class="text-[10px] opacity-70 tracking-widest uppercase mt-1">Custom</span>
+</button>
+</div>
+</section>
+<!-- Prompt Engineering -->
+<section class="bg-surface-container rounded-xl p-8">
+<h2 class="headline-font text-xl font-semibold mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">terminal</span>
+                        Prompt Engineering
+                    </h2>
+<div class="flex flex-col gap-4">
+<button class="group flex items-center justify-between p-4 bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all">
+<div class="text-left">
+<span class="font-label text-[10px] uppercase tracking-widest text-primary mb-1 block">Analysis Routine</span>
+<span class="body-md font-medium text-on-surface">Analysis Prompt</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">open_in_new</span>
+</button>
+<button class="group flex items-center justify-between p-4 bg-surface-container-high hover:bg-surface-container-highest rounded-xl transition-all">
+<div class="text-left">
+<span class="font-label text-[10px] uppercase tracking-widest text-primary mb-1 block">Refinement Logic</span>
+<span class="body-md font-medium text-on-surface">Enhancement Prompt</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">open_in_new</span>
+</button>
+</div>
+<div class="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/10">
+<p class="text-xs text-[#aac7ff]/80 italic leading-relaxed">
+                            "These system instructions define how the AI interprets and reconstructs your visual concepts."
+                        </p>
+</div>
+</section>
+</div>
+</div>
+<!-- Danger Zone -->
+<!-- Backup & Sync Section -->
+<section class="bg-surface-container rounded-xl p-8 mt-8">
+<h2 class="headline-font text-xl font-semibold mb-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">cloud_sync</span>
+        Backup &amp; Sync
+    </h2>
+<p class="text-on-surface-variant text-xs mb-8">Manage your studio configuration. Export your setup as a JSON file or restore from a previous backup.</p>
+<div class="mb-8 p-4 bg-surface-container-high rounded-xl border border-outline-variant/10">
+<div class="flex items-center justify-between gap-4 mb-2">
+<div class="flex flex-col">
+<span class="headline-font font-bold text-on-surface">Local Persistence</span>
+<span class="text-[10px] uppercase tracking-widest text-primary">Browser Storage</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<p class="text-xs text-on-surface-variant/80 leading-relaxed">
+        When enabled, all gallery images and pipeline tasks are stored in the browser's local database (IndexedDB) so they remain available after a refresh.
+    </p>
+</div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-3 p-4 bg-primary text-on-primary rounded-xl hover:opacity-90 transition-all font-label text-sm font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(170,199,255,0.2)]">
+<span class="material-symbols-outlined">download</span>
+            Export Settings (JSON)
+        </button>
+<label class="flex items-center justify-center gap-3 p-4 bg-surface-container-high border border-outline-variant/30 text-on-surface hover:bg-surface-container-highest rounded-xl transition-all cursor-pointer font-label text-sm font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined">upload</span>
+            Import Settings
+            <input accept=".json" class="hidden" type="file"/>
+</label>
+</div>
+</section><div class="mt-12 pt-8 border-t border-surface-container-highest">
+<div class="bg-error-container/10 border border-error/20 rounded-xl p-6 flex items-center justify-between">
+<div>
+<h3 class="headline-font font-bold text-error">Factory Reset</h3>
+<p class="text-xs text-on-surface-variant">Purge all local storage, API keys, and custom prompts.</p>
+</div>
+<button class="px-6 py-2 rounded-full border border-error/30 text-error hover:bg-error hover:text-on-error transition-all font-label text-xs font-bold tracking-widest uppercase">Reset Studio</button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-8 pt-4 bg-[#131315]/60 backdrop-blur-xl z-50 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+<a class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3 hover:text-[#aac7ff] transition-all" href="#">
+<span class="material-symbols-outlined">photo_library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3 hover:text-[#aac7ff] transition-all" href="#">
+<span class="material-symbols-outlined">brush</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#e4e2e4]/50 p-3 hover:text-[#aac7ff] transition-all" href="#">
+<span class="material-symbols-outlined">auto_fix_high</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#aac7ff] text-[#131315] rounded-full p-3 scale-110 shadow-[0_0_15px_rgba(170,199,255,0.4)]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+</a>
+</nav>
+<!-- Modal Backdrop (Hidden) -->
+<div class="hidden fixed inset-0 bg-background/80 backdrop-blur-sm z-[60] flex items-center justify-center p-6">
+<div class="bg-surface-container-high w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-outline-variant/20">
+<div class="px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
+<h3 class="headline-font text-xl font-bold">System Prompt Editor</h3>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">close</button>
+</div>
+<div class="p-8">
+<textarea class="w-full h-64 bg-surface-container-lowest border-none rounded-xl p-6 text-on-surface font-mono text-sm focus:ring-1 focus:ring-primary outline-none resize-none" placeholder="Enter system instructions..."></textarea>
+<div class="mt-8 flex justify-end gap-4">
+<button class="px-6 py-2 rounded-full font-label text-xs uppercase tracking-widest text-on-surface-variant hover:bg-surface-variant transition-all">Discard</button>
+<button class="px-8 py-2 rounded-full bg-primary text-on-primary font-bold font-label text-xs uppercase tracking-widest hover:opacity-90 transition-all">Apply Changes</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>
