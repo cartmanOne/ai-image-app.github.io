@@ -212,15 +212,20 @@
     // --- STATE & PERSISTENCE ---
     let config = {
         apiKey: localStorage.getItem('atelier_key') || '',
-        visionModel: 'gpt-4o',
-        textModel: 'gpt-4o-mini',
-        imageModel: 'dall-e-3',
-        resolution: '1024x1024',
-        systemPrompt: "Describe this image in extreme, forensic detail. Focus on lighting, materials, and composition for image-to-image synthesis.",
+        visionModel: localStorage.getItem('atelier_visionModel') || 'gpt-4o',
+        textModel: localStorage.getItem('atelier_textModel') || 'gpt-4o-mini',
+        imageModel: localStorage.getItem('atelier_imageModel') || 'dall-e-3',
+        resolution: localStorage.getItem('atelier_resolution') || '1024x1024',
+        systemPrompt: localStorage.getItem('atelier_systemPrompt') || "Describe this image in extreme, forensic detail. Focus on lighting, materials, and composition for image-to-image synthesis.",
         enhancements: JSON.parse(localStorage.getItem('atelier_enhancements')) || [
             { id: 1, name: 'Natural Skin', prompt: 'Enhance skin texture, pores, and natural lighting. High fidelity.', auto: true, active: true }
         ]
     };
+
+    function saveSetting(key, value) {
+        config[key] = value;
+        localStorage.setItem(`atelier_${key}`, value);
+    }
 
     let currentImage = null;
     let db;
@@ -235,6 +240,11 @@
         // Load Config into UI
         document.getElementById('apiKey').value = config.apiKey;
         document.getElementById('systemPrompt').value = config.systemPrompt;
+        document.getElementById('resolution').value = config.resolution;
+
+        // Add listeners
+        document.getElementById('systemPrompt').addEventListener('input', (e) => saveSetting('systemPrompt', e.target.value));
+        document.getElementById('resolution').addEventListener('change', (e) => saveSetting('resolution', e.target.value));
         
         renderEnhancements();
         if(config.apiKey) fetchModels();
@@ -445,15 +455,21 @@
         try {
             const resp = await fetch('https://nano-gpt.com/api/v1/models', { headers: { 'Authorization': `Bearer ${config.apiKey}` }});
             const { data } = await resp.json();
-            const fill = (id, filter) => {
-                document.getElementById(id).innerHTML = data.filter(filter).map(m => `<option value="${m.id}">${m.id}</option>`).join('');
+            const fill = (id, filter, key) => {
+                const el = document.getElementById(id);
+                el.innerHTML = data.filter(filter).map(m => `<option value="${m.id}">${m.id}</option>`).join('');
+                if (config[key]) el.value = config[key];
+                el.onchange = () => saveSetting(key, el.value);
             };
-            fill('modelVision', m => m.id.includes('vision') || m.id.includes('gpt-4'));
-            fill('modelText', m => true);
+            fill('modelVision', m => m.id.includes('vision') || m.id.includes('gpt-4'), 'visionModel');
+            fill('modelText', m => true, 'textModel');
             
             const imgResp = await fetch('https://nano-gpt.com/api/v1/image-models', { headers: { 'Authorization': `Bearer ${config.apiKey}` }});
             const imgData = await imgResp.json();
-            document.getElementById('modelImage').innerHTML = imgData.data.map(m => `<option value="${m.id}">${m.id}</option>`).join('');
+            const imgEl = document.getElementById('modelImage');
+            imgEl.innerHTML = imgData.data.map(m => `<option value="${m.id}">${m.id}</option>`).join('');
+            if (config.imageModel) imgEl.value = config.imageModel;
+            imgEl.onchange = () => saveSetting('imageModel', imgEl.value);
         } catch (e) { logDebug("Model load failed: " + e.message); }
     }
 
@@ -472,9 +488,16 @@
     function importSettings(e) {
         const reader = new FileReader();
         reader.onload = ev => {
-            config = JSON.parse(ev.target.result);
-            localStorage.setItem('atelier_key', config.apiKey);
-            localStorage.setItem('atelier_enhancements', JSON.stringify(config.enhancements));
+            const newConfig = JSON.parse(ev.target.result);
+            Object.keys(newConfig).forEach(key => {
+                if (key === 'enhancements') {
+                    localStorage.setItem('atelier_enhancements', JSON.stringify(newConfig[key]));
+                } else if (key === 'apiKey') {
+                    localStorage.setItem('atelier_key', newConfig[key]);
+                } else {
+                    localStorage.setItem(`atelier_${key}`, newConfig[key]);
+                }
+            });
             location.reload();
         };
         reader.readAsText(e.target.files[0]);
