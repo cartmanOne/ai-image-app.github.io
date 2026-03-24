@@ -354,17 +354,28 @@
 
         try {
             const resp = await callNano('/v1/chat/completions', payload);
+            if (resp.error) throw new Error(resp.error.message || "API Error");
+
             const text = resp.choices[0].message.content;
             document.getElementById('basePrompt').value = text;
             document.getElementById('finalPrompt').value = text;
             
             // Chain auto-enhancements
-            for (const enh of config.enhancements) {
-                if (enh.auto) await runEnhanceSingle(enh.id);
+            const activeEnhancements = config.enhancements.filter(e => e.auto);
+            for (let i = 0; i < activeEnhancements.length; i++) {
+                const enh = activeEnhancements[i];
+                btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">auto_fix_high</span> ENHANCING (${i+1}/${activeEnhancements.length})...`;
+                await runEnhanceSingle(enh.id);
             }
             
-            if (document.getElementById('autoGenerate').checked) runGenerate();
-        } catch (e) { logDebug("Error during analysis: " + e.message); }
+            if (document.getElementById('autoGenerate').checked) {
+                btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">auto_awesome</span> GENERATING...`;
+                await runGenerate();
+            }
+        } catch (e) { 
+            logDebug("Error during analysis: " + e.message); 
+            alert("Analysis Failed:\n" + e.message);
+        }
         btn.disabled = false;
         btn.innerHTML = originalText;
         setLoading(false);
@@ -384,8 +395,12 @@
 
         try {
             const resp = await callNano('/v1/chat/completions', payload);
+            if (resp.error) throw new Error(resp.error.message || "API Error");
             document.getElementById('finalPrompt').value = resp.choices[0].message.content;
-        } catch (e) { logDebug("Error during enhancement: " + e.message); }
+        } catch (e) { 
+            logDebug("Error during enhancement: " + e.message);
+            alert(`Enhancement '${enh.name}' failed: ${e.message}`);
+        }
         setLoading(false);
     }
 
@@ -399,16 +414,23 @@
         setLoading(true, "SYNTHESIZING...");
         const startTime = Date.now();
         
+        const sizeStr = document.getElementById('resolution').value;
+        const [w, h] = sizeStr.split('x').map(Number);
+
         const payload = {
             model: document.getElementById('modelImage').value,
             prompt: document.getElementById('finalPrompt').value,
-            size: document.getElementById('resolution').value,
+            size: sizeStr,
+            width: w,
+            height: h,
             imageDataUrls: [currentImage],
             response_format: "b64_json"
         };
 
         try {
             const resp = await callNano('/v1/images/generations', payload);
+            if (resp.error) throw new Error(resp.error.message || "API Error");
+
             const b64 = resp.data[0].b64_json;
             const fullSrc = "data:image/png;base64," + b64;
             
@@ -417,7 +439,10 @@
             document.getElementById('genTimeLabel').innerText = `Gen Time: ${duration}s`;
             
             saveToVault(fullSrc, duration);
-        } catch (e) { logDebug("Error during generation: " + e.message); }
+        } catch (e) { 
+            logDebug("Error during generation: " + e.message); 
+            alert("Generation Failed:\n" + e.message);
+        }
         btn.disabled = false;
         btn.innerHTML = originalText;
         setLoading(false);
