@@ -455,51 +455,62 @@
         setLoading(false);
     }
 
-    async function runGenerate() {
-        if (window.innerWidth < 768) switchMobileTab('preview');
-        const btn = document.getElementById('genBtn');
-        const originalText = btn.innerHTML;
-        if(btn.disabled) return;
-        btn.disabled = true;
-        btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> GENERATING...`;
+async function runGenerate() {
+        const btn = document.getElementById('generateBtn');
+        const status = document.getElementById('statusText');
+        btn.disabled = true; status.innerText = "Generating...";
         
-        setLoading(true, "SYNTHESIZING...");
-        const startTime = Date.now();
+        const selectedModel = document.getElementById('imageModelSelect').value;
         
-        const sizeStr = document.getElementById('resolution').value;
-        const [w, h] = sizeStr.split('x').map(Number);
-
-        const payload = {
-            model: document.getElementById('modelImage').value,
-            prompt: document.getElementById('finalPrompt').value,
-            size: sizeStr,
-            width: w,
-            height: h,
-            imageDataUrls: [currentImage],
+        // Default payload for standard models
+        let payload = {
+            model: selectedModel,
+            prompt: document.getElementById('finalPromptArea').value,
+            nImages: 1,
+            resolution: document.getElementById('resolutionSelect').value,
+            showExplicitContent: true,
+            imageDataUrls: [ currentImageDataUrl ],
             response_format: "b64_json"
         };
 
-        try {
-            const resp = await callNano('/v1/images/generations', payload);
-            if (resp.error) throw new Error(resp.error.message || "API Error");
-
-            const b64 = resp.data[0].b64_json;
-            const fullSrc = "data:image/png;base64," + b64;
+        // Inject custom attributes if 'custom-civitai' is selected
+        if (selectedModel === 'custom-civitai') {
+            payload.resolutionExplicit = true;
+            payload.customCivitaiAir = "coquette:974693@2091367";
+            payload.steps = 9;
+            payload.CFGScale = 1;
+            payload.scheduler = "Default";
+            payload.strength = 0.9;
             
-            document.getElementById('view-result').src = fullSrc;
-            const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-            document.getElementById('genTimeLabel').innerText = `Gen Time: ${duration}s`;
-            
-            saveToVault(fullSrc, duration);
-        } catch (e) { 
-            logDebug("Error during generation: " + e.message); 
-            alert("Generation Failed:\n" + e.message);
+            // The custom model uses singular imageDataUrl instead of the array
+            payload.imageDataUrl = currentImageDataUrl;
+            delete payload.imageDataUrls; 
         }
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        setLoading(false);
-    }
 
+        try {
+            const resp = await fetch(`${BASE_URL}/v1/images/generations`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                body: JSON.stringify(payload)
+            });
+            const data = await resp.json();
+
+            updateDebugDisplay(payload, data);
+
+            if (!resp.ok) throw new Error(data.error?.message || "Unknown error");
+
+            if (data.data?.[0].b64_json) { 
+                addToGallery("data:image/png;base64," + data.data[0].b64_json); 
+            } else if (data.data?.[0].url) { 
+                addToGallery(data.data[0].url); 
+            } else {
+                throw new Error("No image data in response");
+            }
+            status.innerText = "Done!";
+
+        } catch (err) { status.innerText = "Error: " + err.message; }
+        btn.disabled = false;
+    }
     // --- UTILS ---
     async function callNano(endpoint, body) {
         logDebug(`POST ${endpoint}\nPayload: ${JSON.stringify(body).replace(/data:image\/[^;]+;base64,[^"]+/g, '<BASE64_IMG>')}`);
