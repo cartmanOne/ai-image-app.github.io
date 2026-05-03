@@ -455,14 +455,13 @@
         setLoading(false);
     }
 
-async function runGenerate() {
+    async function runGenerate() {
         const btn = document.getElementById('generateBtn');
         const status = document.getElementById('statusText');
         btn.disabled = true; status.innerText = "Generating...";
         
         const selectedModel = document.getElementById('imageModelSelect').value;
         
-        // Default payload for standard models
         let payload = {
             model: selectedModel,
             prompt: document.getElementById('finalPromptArea').value,
@@ -476,7 +475,10 @@ async function runGenerate() {
         // Inject custom attributes if 'custom-civitai' is selected
         if (selectedModel === 'custom-civitai') {
             payload.resolutionExplicit = true;
-            payload.customCivitaiAir = "coquette:974693@2091367";
+            
+            // Fix: Replaced "coquette:..." with the actual CivitAI URL to force the provider to resolve it
+            payload.customCivitaiAir = "https://civitai.com/models/974693?modelVersionId=2091367";
+            
             payload.steps = 9;
             payload.CFGScale = 1;
             payload.scheduler = "Default";
@@ -511,6 +513,7 @@ async function runGenerate() {
         } catch (err) { status.innerText = "Error: " + err.message; }
         btn.disabled = false;
     }
+    
     // --- UTILS ---
     async function callNano(endpoint, body) {
         logDebug(`POST ${endpoint}\nPayload: ${JSON.stringify(body).replace(/data:image\/[^;]+;base64,[^"]+/g, '<BASE64_IMG>')}`);
