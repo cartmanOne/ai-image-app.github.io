@@ -469,15 +469,49 @@
         const sizeStr = document.getElementById('resolution').value;
         const [w, h] = sizeStr.split('x').map(Number);
 
-        const payload = {
-            model: document.getElementById('modelImage').value,
+        // Default payload for standard models
+
+        const selectedModel = document.getElementById('modelImage').value;
+
+        let payload = {
+            model: selectedModel,
             prompt: document.getElementById('finalPrompt').value,
+            nImages: 1,
             size: sizeStr,
             width: w,
             height: h,
             imageDataUrls: [currentImage],
             response_format: "b64_json"
+            showExplicitContent: true,
+            resolutionExplicit: true,
+            imageDataUrls: [currentImage],
+            response_format: "b64_json"
         };
+
+    // const payload = {
+        // model: document.getElementById('modelImage').value,
+            // prompt: document.getElementById('finalPrompt').value,
+            // size: sizeStr,
+            // width: w,
+            // height: h,
+            // imageDataUrls: [currentImage],
+            //response_format: "b64_json"
+        // };
+        
+        // Inject custom attributes if 'custom-civitai' is selected
+        if (selectedModel === 'custom-civitai') {
+            // payload.resolutionExplicit = true;
+            payload.customCivitaiAir = "coquette:974693@2091367";
+            payload.steps = 9;
+            payload.CFGScale = 1;
+            payload.scheduler = "Default";
+            payload.strength = 0.9;
+            
+            // The custom model uses singular imageDataUrl instead of the array
+            // payload.imageDataUrl = currentImageDataUrl;
+            // delete payload.imageDataUrls; 
+        }
+
 
         try {
             const resp = await callNano('/v1/images/generations', payload);
