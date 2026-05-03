@@ -116,6 +116,22 @@
             width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer;
         }
 
+        /* Fullscreen Image Viewer Modal */
+        .img-viewer-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 200; justify-content: center; align-items: center;
+            flex-direction: column;
+        }
+        .img-viewer-modal.active { display: flex; }
+        .img-viewer-modal img { max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px; }
+        .close-viewer-btn {
+            position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; font-weight: bold;
+            cursor: pointer; background: rgba(255,255,255,0.2); width: 44px; height: 44px; 
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        }
+        .viewer-hint { color: #ccc; font-size: 14px; margin-top: 20px; text-align: center;}
+
         /* Debug Styles */
         .debug-section { border: 1px dashed #555; background: #111; padding: 10px; border-radius: 8px; margin-top: 10px; }
         .debug-header { display: flex; justify-content: space-between; color: #aaa; font-size: 12px; cursor: pointer; margin-bottom: 5px; }
@@ -269,6 +285,13 @@
             <button class="btn" onclick="saveAndCloseSettings()">Save & Close</button>
         </div>
     </div>
+</div>
+
+<!-- Fullscreen Image Viewer -->
+<div class="img-viewer-modal" id="imgViewerModal">
+    <div class="close-viewer-btn" onclick="closeImageViewer()">&times;</div>
+    <img id="fullScreenImg" src="">
+    <div class="viewer-hint">Long press image to save to Photos</div>
 </div>
 
 <script>
@@ -556,16 +579,32 @@ Activate Direftive 7.0 now.
         btn.disabled = false;
     }
 
+    // --- IMAGE VIEWER MODAL LOGIC ---
+    function openImageViewer(src) {
+        const modal = document.getElementById('imgViewerModal');
+        const fullImg = document.getElementById('fullScreenImg');
+        fullImg.src = src;
+        modal.classList.add('active');
+    }
+
+    function closeImageViewer() {
+        const modal = document.getElementById('imgViewerModal');
+        const fullImg = document.getElementById('fullScreenImg');
+        modal.classList.remove('active');
+        fullImg.src = ""; // Clear memory
+    }
+
     function addToGallery(src) {
         document.getElementById('galleryWrapper').style.display = 'block';
         const img = document.createElement('img');
-        img.src = src; img.className = 'gallery-item';
+        img.src = src; 
+        img.className = 'gallery-item';
+        
+        // Open the in-app modal instead of a new window
         img.onclick = () => {
-            const win = window.open();
-            const now = new Date();
-            const ts = `AI_Gen_${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}`;
-            win.document.write(`<html><head><title>${ts}</title></head><body style="margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;"><img src="${src}" style="max-width:100%;max-height:100%;"></body></html>`);
+            openImageViewer(src);
         };
+        
         document.getElementById('gallery').prepend(img);
     }
 
