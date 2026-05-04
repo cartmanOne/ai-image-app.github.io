@@ -433,8 +433,8 @@ async function runAnalyze() {
         // Update Button and Loader for Analysis
         btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> ANALYZING ${progressPrefix}`;
         setLoading(true, `ANALYZING ${progressPrefix}`);
-        document.getElementById('view-original').src = currentImg;
-    document.getElementById('sourcePreview').src = currentImg;
+        // document.getElementById('view-original').src = currentImg;  // Update Preview tab with current image
+    document.getElementById('sourcePreview').src = currentImg;  // Update Editor tab with current image
 
         try {
             const payload = {
@@ -502,6 +502,7 @@ async function runGenerateSingle(imgSrc, index) {
         document.getElementById('view-result').src = fullSrc;
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
         saveToVault(fullSrc, duration); // Save result to IndexedDB
+        document.getElementById('view-original').src = imgSrc;  // Update Preview tab with original image
     } catch (e) {
         logDebug(`Generation failed for image ${index + 1}`);
     }
