@@ -396,10 +396,9 @@ async function runAnalyze() {
     btn.disabled = true;
     setLoading(true, "STARTING BATCH...");
 
-    // Loop through the queue
     for (let i = 0; i < imageQueue.length; i++) {
         const currentImg = imageQueue[i];
-        setLoading(true, `ANALYZING (${i + 1}/${imageQueue.length})`);
+        const progressPrefix = `(${i + 1}/${imageQueue.length})`;
         
         // Update Button and Loader for Analysis
         btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> ANALYZING ${progressPrefix}`;
@@ -421,7 +420,7 @@ async function runAnalyze() {
             document.getElementById('basePrompt').value = text;
             document.getElementById('finalPrompt').value = text;
 
-            // Apply auto-enhancements sequentially
+            // Apply Enhancements
             const activeEnhancements = config.enhancements.filter(e => e.auto);
             for (let j = 0; j < activeEnhancements.length; j++) {
                 const enh = activeEnhancements[j];
@@ -431,7 +430,7 @@ async function runAnalyze() {
 
             // Auto-Generate if checked
             if (document.getElementById('autoGenerate').checked) {
-                                btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">auto_awesome</span> GENERATING ${progressPrefix}...`;
+                btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">auto_awesome</span> GENERATING ${progressPrefix}...`;
                 await runGenerateSingle(currentImg, i);
             }
         } catch (e) {
@@ -442,8 +441,8 @@ async function runAnalyze() {
     btn.disabled = false;
     setLoading(false);
     btn.innerHTML = `<span class="material-symbols-outlined">analytics</span> BATCH COMPLETE`;
-}
-
+    }
+    
 // Helper for single generation within the batch loop
 async function runGenerateSingle(imgSrc, index) {
     setLoading(true, `GENERATING (${index + 1}/${imageQueue.length})`);
