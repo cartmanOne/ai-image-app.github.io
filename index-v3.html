@@ -259,6 +259,14 @@ input[type="checkbox"] {
     <div id="lightbox" class="fixed inset-0 z-[150] bg-black/95 hidden items-center justify-center p-4 backdrop-blur-sm" onclick="if(event.target === this) closeLightbox()">
         <img id="lightboxImg" class="max-w-full max-h-full object-contain shadow-2xl rounded-lg">
         <button onclick="closeLightbox()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all"><span class="material-symbols-outlined">close</span></button>
+        <button onclick="openNextInLightbox()" 
+  class="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 pl-1 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all">
+  <span class="material-symbols-outlined">arrow_forward_ios</span>
+</button>
+<button onclick="openPrevInLightbox()" 
+  class="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 pr-1 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all">
+  <span class="material-symbols-outlined">arrow_back_ios</span>
+</button>
     </div>
 
 <script>
