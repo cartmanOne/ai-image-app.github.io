@@ -392,6 +392,7 @@ async function runAnalyze() {
     if (imageQueue.length === 0) return alert("Upload images first.");
     
     const btn = document.getElementById('mainActionBtn');
+    const originalText = btn.innerHTML;
     btn.disabled = true;
     setLoading(true, "STARTING BATCH...");
 
@@ -399,6 +400,10 @@ async function runAnalyze() {
     for (let i = 0; i < imageQueue.length; i++) {
         const currentImg = imageQueue[i];
         setLoading(true, `ANALYZING (${i + 1}/${imageQueue.length})`);
+        
+        // Update Button and Loader for Analysis
+        btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> ANALYZING ${progressPrefix}`;
+        setLoading(true, `ANALYZING ${progressPrefix}`);
         document.getElementById('view-original').src = currentImg;
 
         try {
@@ -418,11 +423,15 @@ async function runAnalyze() {
 
             // Apply auto-enhancements sequentially
             const activeEnhancements = config.enhancements.filter(e => e.auto);
-            for (const enh of activeEnhancements) {
+            for (let j = 0; j < activeEnhancements.length; j++) {
+                const enh = activeEnhancements[j];
+                btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">auto_fix_high</span> ENHANCING ${progressPrefix}...`;
                 await runEnhanceSingle(enh.id);
             }
 
+            // Auto-Generate if checked
             if (document.getElementById('autoGenerate').checked) {
+                                btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">auto_awesome</span> GENERATING ${progressPrefix}...`;
                 await runGenerateSingle(currentImg, i);
             }
         } catch (e) {
@@ -624,26 +633,34 @@ function readFileAsBase64(file) {
     function toggleDebug() { document.getElementById('debugDrawer').classList.toggle('hidden'); }
 
     // --- COMPARE UTILS ---
-    function toggleCompare() {
-        const view = document.getElementById('compareView');
-        const split = document.getElementById('splitContainer');
-        const btn = document.getElementById('cmpBtnText');
-        
-        if (view.classList.contains('hidden')) {
-            if (!currentImage) return alert("No image to compare");
-            document.getElementById('cmp-before').src = currentImage;
-            document.getElementById('cmp-after').src = document.getElementById('view-result').src || currentImage;
-            view.classList.remove('hidden');
-            split.classList.add('opacity-0');
-            btn.innerText = "EXIT COMPARE";
-            document.querySelector('#compareView input').value = 50;
-            updateCompare(50);
-        } else {
-            view.classList.add('hidden');
-            split.classList.remove('opacity-0');
-            btn.innerText = "COMPARE";
+function toggleCompare() {
+    const view = document.getElementById('compareView');
+    const split = document.getElementById('splitContainer');
+    const btn = document.getElementById('cmpBtnText');
+    
+    // Get the current source image being viewed
+    const activeSource = document.getElementById('view-original').src;
+
+    if (view.classList.contains('hidden')) {
+        // Check if a source image actually exists
+        if (!activeSource || activeSource.includes('window.location.href')) {
+            return alert("No image to compare");
         }
+        
+        document.getElementById('cmp-before').src = activeSource;
+        document.getElementById('cmp-after').src = document.getElementById('view-result').src || activeSource;
+        
+        view.classList.remove('hidden');
+        split.classList.add('opacity-0');
+        btn.innerText = "EXIT COMPARE";
+        document.querySelector('#compareView input').value = 50;
+        updateCompare(50);
+    } else {
+        view.classList.add('hidden');
+        split.classList.remove('opacity-0');
+        btn.innerText = "COMPARE";
     }
+}
 
     function updateCompare(val) {
         document.getElementById('cmp-line').style.left = val + '%';
