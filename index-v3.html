@@ -53,7 +53,7 @@
                         <img id="sourcePreview" class="absolute inset-0 w-full h-full object-contain bg-black/50 hidden">
                         <span class="material-symbols-outlined text-zinc-600 mb-2">add_a_photo</span>
                         <p class="text-[10px] text-zinc-500 font-medium">TAP TO UPLOAD</p>
-                        <input type="file" id="fileInput" hidden accept="image/*" onchange="handleFile(event)">
+                        <input type="file" id="fileInput" hidden accept="image/*" multiple onchange="handleFile(event)">
                     </div>
                 </div>
 
@@ -262,7 +262,8 @@
         localStorage.setItem(`atelier_${key}`, value);
     }
 
-    let currentImage = null;
+    // let currentImage = null;
+    let imageQueue = []; // Now stores an array of base64 strings
     let db;
     let availableImageModels = [];
 
@@ -387,51 +388,99 @@
     }
 
     // --- CORE API WORKFLOW ---
-    async function runAnalyze() {
-        if (!currentImage) return alert("Upload an image first.");
-        const btn = document.getElementById('mainActionBtn');
-        const originalText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> ANALYZING...`;
-        setLoading(true, "ANALYZING...");
-        
-        const payload = {
-            model: document.getElementById('modelVision').value,
-            messages: [
-                { role: 'system', content: config.systemPrompt },
-                { role: 'user', content: [{ type: 'text', text: "Analyze this image." }, { type: 'image_url', image_url: { url: currentImage } }] }
-            ]
-        };
+async function runAnalyze() {
+    if (imageQueue.length === 0) return alert("Upload images first.");
+    
+    const btn = document.getElementById('mainActionBtn');
+    btn.disabled = true;
+    setLoading(true, "STARTING BATCH...");
+
+    // Loop through the queue
+    for (let i = 0; i < imageQueue.length; i++) {
+        const currentImg = imageQueue[i];
+        setLoading(true, `ANALYZING (${i + 1}/${imageQueue.length})`);
+        document.getElementById('view-original').src = currentImg;
 
         try {
-            const resp = await callNano('/v1/chat/completions', payload);
-            if (resp.error) throw new Error(resp.error.message || "API Error");
+            const payload = {
+                model: document.getElementById('modelVision').value,
+                messages: [
+                    { role: 'system', content: config.systemPrompt },
+                    { role: 'user', content: [{ type: 'text', text: "Analyze this image." }, { type: 'image_url', image_url: { url: currentImg } }] }
+                ]
+            };
 
+            const resp = await callNano('/v1/chat/completions', payload);
             const text = resp.choices[0].message.content;
+            
             document.getElementById('basePrompt').value = text;
             document.getElementById('finalPrompt').value = text;
-            
-            // Chain auto-enhancements
+
+            // Apply auto-enhancements sequentially
             const activeEnhancements = config.enhancements.filter(e => e.auto);
-            for (let i = 0; i < activeEnhancements.length; i++) {
-                const enh = activeEnhancements[i];
-                btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">auto_fix_high</span> ENHANCING (${i+1}/${activeEnhancements.length})...`;
+            for (const enh of activeEnhancements) {
                 await runEnhanceSingle(enh.id);
             }
-            
+
             if (document.getElementById('autoGenerate').checked) {
-                btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">auto_awesome</span> GENERATING...`;
-                await runGenerate();
+                await runGenerateSingle(currentImg, i);
             }
-        } catch (e) { 
-            logDebug("Error during analysis: " + e.message); 
-            alert("Analysis Failed:\n" + e.message);
+        } catch (e) {
+            logDebug(`Error on image ${i+1}: ${e.message}`);
         }
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        setLoading(false);
     }
 
+    btn.disabled = false;
+    setLoading(false);
+    btn.innerHTML = `<span class="material-symbols-outlined">analytics</span> BATCH COMPLETE`;
+}
+
+// Helper for single generation within the batch loop
+async function runGenerateSingle(imgSrc, index) {
+    setLoading(true, `GENERATING (${index + 1}/${imageQueue.length})`);
+    const startTime = Date.now();
+    const sizeStr = document.getElementById('resolution').value;
+    const [w, h] = sizeStr.split('x').map(Number);
+
+    const payload = {
+        model: document.getElementById('modelImage').value,
+        prompt: document.getElementById('finalPrompt').value,
+        size: sizeStr,
+        width: w,
+        height: h,
+        imageDataUrls: [imgSrc],
+        response_format: "b64_json",
+        nImages: 1, 
+        showExplicitContent: true,
+        resolutionExplicit: true,
+    };
+
+    try {
+        const resp = await callNano('/v1/images/generations', payload);
+        const b64 = resp.data[0].b64_json;
+        const fullSrc = "data:image/png;base64," + b64;
+        
+        document.getElementById('view-result').src = fullSrc;
+        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+        saveToVault(fullSrc, duration); // Save result to IndexedDB
+    } catch (e) {
+        logDebug(`Generation failed for image ${index + 1}`);
+    }
+}
+
+async function runGenerate() {
+    if (imageQueue.length === 0) return alert("Upload images first.");
+    const btn = document.getElementById('genBtn');
+    btn.disabled = true;
+    
+    for (let i = 0; i < imageQueue.length; i++) {
+        await runGenerateSingle(imageQueue[i], i);
+    }
+    
+    btn.disabled = false;
+    setLoading(false);
+}
+    
     async function runEnhanceSingle(id) {
         const enh = config.enhancements.find(e => e.id === id);
         setLoading(true, `ENHANCING: ${enh.name}`);
@@ -455,85 +504,6 @@
         setLoading(false);
     }
 
-    async function runGenerate() {
-        if (window.innerWidth < 768) switchMobileTab('preview');
-        const btn = document.getElementById('genBtn');
-        const originalText = btn.innerHTML;
-        if(btn.disabled) return;
-        btn.disabled = true;
-        btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> GENERATING...`;
-        
-        setLoading(true, "SYNTHESIZING...");
-        const startTime = Date.now();
-        
-        const sizeStr = document.getElementById('resolution').value;
-        const [w, h] = sizeStr.split('x').map(Number);
-
-        // Default payload for standard models
-
-        const selectedModel = document.getElementById('modelImage').value;
-
-        let payload = {
-            model: selectedModel,
-            prompt: document.getElementById('finalPrompt').value,
-            nImages: 1,
-            size: sizeStr,
-            width: w,
-            height: h,
-            imageDataUrls: [currentImage],
-            response_format: "b64_json",
-            showExplicitContent: true,
-            resolutionExplicit: true,
-            imageDataUrls: [currentImage],
-            response_format: "b64_json"
-        };
-
-    // const payload = {
-        // model: document.getElementById('modelImage').value,
-            // prompt: document.getElementById('finalPrompt').value,
-            // size: sizeStr,
-            // width: w,
-            // height: h,
-            // imageDataUrls: [currentImage],
-            //response_format: "b64_json"
-        // };
-        
-        // Inject custom attributes if 'custom-civitai' is selected
-        if (selectedModel === 'custom-civitai') {
-            // payload.resolutionExplicit = true;
-            payload.customCivitaiAir = "coquette:974693@2091367";
-            payload.steps = 9;
-            payload.CFGScale = 1;
-            payload.scheduler = "Default";
-            payload.strength = 0.95;
-            
-            // The custom model uses singular imageDataUrl instead of the array
-            // payload.imageDataUrl = currentImageDataUrl;
-            // delete payload.imageDataUrls; 
-        };
-
-
-        try {
-            const resp = await callNano('/v1/images/generations', payload);
-            if (resp.error) throw new Error(resp.error.message || "API Error");
-
-            const b64 = resp.data[0].b64_json;
-            const fullSrc = "data:image/png;base64," + b64;
-            
-            document.getElementById('view-result').src = fullSrc;
-            const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-            document.getElementById('genTimeLabel').innerText = `Gen Time: ${duration}s`;
-            
-            saveToVault(fullSrc, duration);
-        } catch (e) { 
-            logDebug("Error during generation: " + e.message); 
-            alert("Generation Failed:\n" + e.message);
-        }
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        setLoading(false);
-    }
-
     // --- UTILS ---
     async function callNano(endpoint, body) {
         logDebug(`POST ${endpoint}\nPayload: ${JSON.stringify(body).replace(/data:image\/[^;]+;base64,[^"]+/g, '<BASE64_IMG>')}`);
@@ -551,31 +521,35 @@
         return data;
     }
 
-    function handleFile(e) {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            currentImage = ev.target.result;
-            document.getElementById('sourcePreview').src = currentImage;
-            document.getElementById('sourcePreview').classList.remove('hidden');
-            document.getElementById('view-original').src = currentImage;
-            
-            // Auto-detect resolution
-            const img = new Image();
-            img.onload = () => {
-                const ratio = img.width / img.height;
-                let res = '1024x1024';
-                if (ratio < 0.8) res = '1024x1792';
-                if (ratio > 1.2) res = '1792x1024';
-                const sel = document.getElementById('resolution');
-                if (sel.querySelector(`option[value="${res}"]`)) {
-                    sel.value = res;
-                    saveSetting('resolution', res);
-                }
-            };
-            img.src = currentImage;
-        };
-        reader.readAsDataURL(e.target.files[0]);
+async function handleFile(e) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    imageQueue = []; // Clear existing queue
+    const previewImg = document.getElementById('sourcePreview');
+    const dropZoneText = document.querySelector('#dropZone p');
+
+    for (const file of files) {
+        const base64 = await readFileAsBase64(file);
+        imageQueue.push(base64);
     }
+
+    // Show the first image as a preview and update the label count
+    previewImg.src = imageQueue[0];
+    previewImg.classList.remove('hidden');
+    document.getElementById('view-original').src = imageQueue[0];
+    dropZoneText.innerText = `${imageQueue.length} IMAGES LOADED`;
+    logDebug(`Batch loaded: ${imageQueue.length} images.`);
+}
+
+// Helper to read files as base64 for the API
+function readFileAsBase64(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+    });
+}
 
     function setLoading(show, text = "") {
         document.getElementById('loader').classList.toggle('hidden', !show);
