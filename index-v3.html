@@ -423,6 +423,7 @@ async function runAnalyze() {
         btn.innerHTML = `<span class="animate-spin material-symbols-outlined text-sm">progress_activity</span> ANALYZING ${progressPrefix}`;
         setLoading(true, `ANALYZING ${progressPrefix}`);
         document.getElementById('view-original').src = currentImg;
+    document.getElementById('sourcePreview').src = currentImg;
 
         try {
             const payload = {
